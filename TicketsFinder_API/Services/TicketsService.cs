@@ -1,7 +1,9 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using TicketFinder_Models;
 using TicketsFinder_API.Services.IServices;
 
@@ -32,10 +34,14 @@ namespace TicketsFinder_API.Services
                 //set date value
                 if (date != null)
                 {
-                    var datePicker = driver.FindElement(By.Name("date-hover"));
-                    datePicker.Clear();
-                    datePicker.SendKeys(date);
-                    datePicker.Click();
+                    DateTime dateParsed = new();
+                    bool isDateParsed = DateTime.TryParseExact(date, "dd.MM.yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out dateParsed);
+                    if (isDateParsed && dateParsed >= DateTime.Now.Date)
+                    {
+                        string dateParsedString = DateOnly.FromDateTime(dateParsed).ToString("yyyy-MM-dd");
+                        var datePicker = driver.FindElement(By.XPath("//form//input[@name='date']"));
+                        driver.ExecuteJavaScript($"arguments[0].value = '{dateParsedString}'", datePicker);
+                    }
                 }
 
                 //set time value
@@ -77,7 +83,6 @@ namespace TicketsFinder_API.Services
                     string depatureTime = list[i].FindElement(By.ClassName("time")).FindElements(By.TagName("div"))[0].Text;
                     string arrivalTime = list[i].FindElement(By.ClassName("time")).FindElements(By.TagName("div"))[1].Text;
 
-                    //var cultureInfo = new CultureInfo("uk-UA");
                     ticket.Departure = DateTime.Parse(depatureDate + 'T' + depatureTime + ":00");
                     ticket.Arrival = DateTime.Parse(arrivalDate + 'T' + arrivalTime + ":00");
 
@@ -86,7 +91,6 @@ namespace TicketsFinder_API.Services
                     foreach (var item in items)
                     {
                         string seatClass = item.FindElement(By.ClassName("wagon-class")).Text;
-                        //string seatClass = item.FindElement(By.ClassName("wagon-class")).Text.Replace('\"', ' ');
                         TicketDTO.Item ticketItem = new()
                         {
                             Class = seatClass,
