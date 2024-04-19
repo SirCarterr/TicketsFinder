@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketsFinder_API", "TicketsFinder_API\TicketsFinder_API.csproj", "{0DEB9C26-DD89-4CA8-B220-54FECFD97677}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketsFinder_API", "TicketsFinder_API\TicketsFinder_API.csproj", "{0DEB9C26-DD89-4CA8-B220-54FECFD97677}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFinder_Models", "TicketFinder_Models\TicketFinder_Models.csproj", "{E5E646E2-173E-4ACE-A641-1A18E8011EDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Models", "TicketFinder_Models\TicketFinder_Models.csproj", "{E5E646E2-173E-4ACE-A641-1A18E8011EDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFinder_Bot", "TicketFinder_Bot\TicketFinder_Bot.csproj", "{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{E5E646E2-173E-4ACE-A641-1A18E8011EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5E646E2-173E-4ACE-A641-1A18E8011EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5E646E2-173E-4ACE-A641-1A18E8011EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
