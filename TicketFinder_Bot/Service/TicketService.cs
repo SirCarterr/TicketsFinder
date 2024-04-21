@@ -14,9 +14,9 @@ namespace TicketFinder_Bot.Service
         private readonly string url = "https://localhost:7196/tickets";
         private readonly HttpClient _client;
 
-        public TicketService(HttpClient client)
+        public TicketService()
         {
-            _client = client;
+            _client = new();
         }
 
         public async Task<List<TicketDTO>> GetTicket(string from, string to, string? date, string? time)

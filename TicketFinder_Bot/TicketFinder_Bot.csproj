@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TicketFinder_Models\TicketFinder_Models.csproj" />
+    <ProjectReference Include="..\TicketFinder_SD\TicketFinder_Common.csproj" />
   </ItemGroup>
 
 </Project>
