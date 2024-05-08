@@ -13,21 +13,21 @@ namespace TicketFinder_Bot.Service
         public string[] ValidateDate(string input)
         {
             string[] date = new string[2];
-            if (string.IsNullOrEmpty(input) || input.Equals("Сьогодні"))
+            if (string.IsNullOrEmpty(input) || input.ToLower().Equals("сьогодні"))
             {
                 date[0] = DateTime.Now.Date.ToString("dd.MM.yyyy");
                 return date;
             }
 
-            if (input.Equals("Завтра"))
+            if (input.ToLower().Equals("завтра"))
             {
                 date[0] = DateTime.Now.Date.AddDays(1).ToString("dd.MM.yyyy");
                 return date;
             }
 
-            if (input.Equals("Післязавтра"))
+            if (input.ToLower().Equals("післязавтра"))
             {
-                date[0] = DateTime.Now.Date.AddDays(1).ToString("dd.MM.yyyy");
+                date[0] = DateTime.Now.Date.AddDays(2).ToString("dd.MM.yyyy");
                 return date;
             }
 
@@ -48,7 +48,7 @@ namespace TicketFinder_Bot.Service
             string[] route = new string[2];
             if (string.IsNullOrEmpty(input))
             {
-                route[0] = "Неможливо зробити пошук. Введіть місця маршруту";
+                route[1] = "Неможливо зробити пошук. Введіть місця маршруту";
             }
 
             Match match = Regex.Match(input, @"\s*(?<from>\w+)\s*[-\s]\s*(?<to>\w+)\s*");
@@ -58,7 +58,7 @@ namespace TicketFinder_Bot.Service
                 route[1] = match.Groups[2].Value;
             }
             else
-                route[0] = "Невірний формат вводу, спробуйте ще";
+                route[1] = "Невірний формат вводу, спробуйте ще";
             return route;
         }
     }

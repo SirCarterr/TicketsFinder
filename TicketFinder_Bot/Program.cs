@@ -7,12 +7,14 @@ using Telegram.Bot;
 using TicketFinder_Bot.Service.IService;
 using TicketFinder_Bot.Service;
 using TicketFinder_Common;
+using TicketFinder_Models;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TicketFinder_Bot
 {
     public class Program
     {
-        private static readonly IValidationService _validationService = new ValidationService();
+        private static readonly IBotCommandService _botCommandService = new BotCommandService();
         private static readonly ITicketService _ticketService = new TicketService();
 
         private static string currentCommand = "";
@@ -44,10 +46,10 @@ namespace TicketFinder_Bot
                 {
                     case "/search":
                         currentCommand = SD.search_command;
-                        currentCommandSteps++;
                         await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: SD.getRoute_message,
+                        text: SD.search_command_messages[currentCommandSteps],
+                        parseMode: ParseMode.Html,
                         cancellationToken: cancellationToken);
                         break;
 
@@ -58,17 +60,96 @@ namespace TicketFinder_Bot
                         cancellationToken: cancellationToken);
                         break;
                 }
+                return;
+            }
+
+            if (messageText.Equals("/cancel"))
+            {
+                currentCommand = "";
+                currentCommandSteps = 0;
+
+                await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: "Команду відмінено",
+                cancellationToken: cancellationToken);
+                return;
             }
 
             // Check what command is executed
             switch (currentCommand)
             {
                 case "/search":
-                    //Use IBotService to do command steps
-                    //Then use TicketService to get tickets
+                    var (isSuccessful, data) = _botCommandService.SearchCommand(messageText, currentCommandSteps);
+                    if (isSuccessful)
+                    {
+                        if (currentCommandSteps == 0)
+                        {
+                            _ticketService.RequestSearch[currentCommandSteps] = data[0];
+                            _ticketService.RequestSearch[currentCommandSteps + 1] = data[1];
+                        }
+                        else
+                        {
+                            _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
+                        }
+                        
+                        //TO DO: reply markup
+                        //
 
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: SD.search_command_messages[++currentCommandSteps],
+                        parseMode: ParseMode.Html,
+                        cancellationToken: cancellationToken);
+
+                        if (currentCommandSteps == SD.search_command_steps)
+                        {
+                            List<TicketDTO> tickets = await _ticketService.GetTickets();
+                            if (!tickets.Any())
+                            {
+                                await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Немає квитків на вказаний маршрут за введеними даними(",
+                                cancellationToken: cancellationToken);
+                            }
+                            else
+                            {
+                                foreach (TicketDTO ticket in tickets)
+                                {
+                                    InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
+                                    for(int i = 0; i < ticket.Items.Count; i++)
+                                    {
+                                        inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"<b>{ticket.Items[i].Class}</b>: {ticket.Items[i].Places}", ticket.Items[i].URL);
+                                    }
+
+                                    InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);
+
+                                    await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Знайдені квитки на вказаний маршрут:",
+                                    cancellationToken: cancellationToken);
+
+                                    await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: SD.ConstructTicketMessage(ticket),
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: inlineKeyboardMarkup,
+                                    cancellationToken: cancellationToken);
+                                }
+                            }
+                            currentCommand = "";
+                            currentCommandSteps = 0;
+                        }
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Помилка:\n" + data[1],
+                        cancellationToken: cancellationToken);
+                    }
                     break;
             }
+            return;
         }
 
         public static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

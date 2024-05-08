@@ -17,25 +17,26 @@ namespace TicketFinder_Bot.Service
             _validationService = new ValidationService();
         }
 
-        public (bool, object?) SearchCommand(string message, int commandStep)
+        public (bool isSuccessful, string[] data) SearchCommand(string message, int commandStep)
         {
             string[] result;
             switch (commandStep)
             {
-                case 1:
+                case 0:
                     result = _validationService.ValidateRoute(message);
-                    if (string.IsNullOrEmpty(result[1]))
-                        return (false, null);
+                    if (string.IsNullOrEmpty(result[0]))
+                        return (false, result);
+                    return (true, result);
+
+                case 1:
+                    result = _validationService.ValidateDate(message);
+                    if (string.IsNullOrEmpty(result[0]))
+                        return (false, result);
                     return (true, result);
 
                 case 2:
-                    result = _validationService.ValidateDate(message);
-                    if (string.IsNullOrEmpty(result[0]))
-                        return (false, null);
+                    result = new string[1] { message };
                     return (true, result);
-
-                case 3:
-                    return (true, message);
 
                 default:
                     return (false, null);

@@ -9,6 +9,7 @@ namespace TicketFinder_Bot.Service.IService
 {
     public interface ITicketService
     {
-        public Task<List<TicketDTO>> GetTicket(string from, string to, string? date, string? time);
+        public string[] RequestSearch { get; set; }
+        public Task<List<TicketDTO>> GetTickets();
     }
 }
