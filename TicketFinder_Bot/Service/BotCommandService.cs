@@ -35,7 +35,9 @@ namespace TicketFinder_Bot.Service
                     return (true, result);
 
                 case 2:
-                    result = new string[1] { message };
+                    result = _validationService.ValidateTime(message);
+                    if (string.IsNullOrEmpty(result[0]))
+                        return (false, result);
                     return (true, result);
 
                 default:

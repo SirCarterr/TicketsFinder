@@ -33,6 +33,7 @@ namespace TicketFinder_Bot
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
                     text: "Бот приймає тільки текстові команди",
+                    disableNotification: true,
                     cancellationToken: cancellationToken);
                 return;
             }
@@ -50,13 +51,14 @@ namespace TicketFinder_Bot
                         chatId: chatId,
                         text: SD.search_command_messages[currentCommandSteps],
                         parseMode: ParseMode.Html,
+                        disableNotification: true,
                         cancellationToken: cancellationToken);
                         break;
-
                     default:
                         await botClient.SendTextMessageAsync(
                         chatId: chatId,
                         text: "Такої команди не існує",
+                        disableNotification: true,
                         cancellationToken: cancellationToken);
                         break;
                 }
@@ -71,6 +73,8 @@ namespace TicketFinder_Bot
                 await botClient.SendTextMessageAsync(
                 chatId: chatId,
                 text: "Команду відмінено",
+                replyMarkup: new ReplyKeyboardRemove(),
+                disableNotification: true,
                 cancellationToken: cancellationToken);
                 return;
             }
@@ -91,15 +95,61 @@ namespace TicketFinder_Bot
                         {
                             _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
                         }
-                        
-                        //TO DO: reply markup
-                        //
 
-                        await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: SD.search_command_messages[++currentCommandSteps],
-                        parseMode: ParseMode.Html,
-                        cancellationToken: cancellationToken);
+                        //TO DO: reply markup
+                        ReplyKeyboardMarkup replyKeyboardMarkup;
+                        switch (currentCommandSteps + 1)
+                        {
+                            case 1:
+                                replyKeyboardMarkup = new(new[]
+                                {
+                                    new KeyboardButton[] {"Сьогодні"},
+                                    new KeyboardButton[] {"Завтра"},
+                                    new KeyboardButton[] {"Післязавтра"},
+                                });
+
+                                await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: SD.search_command_messages[++currentCommandSteps],
+                                parseMode: ParseMode.Html,
+                                replyMarkup: replyKeyboardMarkup,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                                break;
+                            case 2:
+                                replyKeyboardMarkup = new(new[]
+                                {
+                                    new KeyboardButton[] {"00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00"},
+                                    new KeyboardButton[] {"08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"},
+                                    new KeyboardButton[] {"16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"},
+                                });
+
+                                await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: SD.search_command_messages[++currentCommandSteps],
+                                parseMode: ParseMode.Html,
+                                replyMarkup: replyKeyboardMarkup,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                                break;
+                            case 3:
+                                await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: SD.search_command_messages[++currentCommandSteps],
+                                parseMode: ParseMode.Html,
+                                replyMarkup: new ReplyKeyboardRemove(),
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                                break;
+                            default:
+                                await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: SD.search_command_messages[++currentCommandSteps],
+                                parseMode: ParseMode.Html,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                                break;
+                        }
 
                         if (currentCommandSteps == SD.search_command_steps)
                         {
@@ -118,7 +168,7 @@ namespace TicketFinder_Bot
                                     InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
                                     for(int i = 0; i < ticket.Items.Count; i++)
                                     {
-                                        inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"<b>{ticket.Items[i].Class}</b>: {ticket.Items[i].Places}", ticket.Items[i].URL);
+                                        inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticket.Items[i].Class}: {ticket.Items[i].Places}", ticket.Items[i].URL);
                                     }
 
                                     InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);

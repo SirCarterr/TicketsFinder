@@ -61,5 +61,25 @@ namespace TicketFinder_Bot.Service
                 route[1] = "Невірний формат вводу, спробуйте ще";
             return route;
         }
+
+        public string[] ValidateTime(string input)
+        {
+            string[] time = new string[2];
+            if (string.IsNullOrEmpty(input))
+            {
+                time[0] = "00:00";
+            }
+
+            Match match = Regex.Match(input, @"\d\d:\d\d");
+            if (match.Success)
+            {
+                time[0] = input;
+            }
+            else
+            {
+                time[1] = "Невірний формат вводу, спробуйте ще";
+            }
+            return time;
+        }
     }
 }
