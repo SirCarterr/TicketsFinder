@@ -16,6 +16,8 @@ namespace TicketsFinder_API
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             builder.Services.AddScoped<ITicketsService, TicketsService>();
 
             builder.Services.AddControllers();
