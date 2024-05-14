@@ -48,18 +48,18 @@ namespace TicketFinder_Bot
                     case "/search":
                         currentCommand = SD.search_command;
                         await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: SD.search_command_messages[currentCommandSteps],
-                        parseMode: ParseMode.Html,
-                        disableNotification: true,
-                        cancellationToken: cancellationToken);
+                            chatId: chatId,
+                            text: SD.search_command_messages[currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
                         break;
                     default:
                         await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Такої команди не існує",
-                        disableNotification: true,
-                        cancellationToken: cancellationToken);
+                            chatId: chatId,
+                            text: "Такої команди не існує",
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
                         break;
                 }
                 return;
@@ -71,11 +71,11 @@ namespace TicketFinder_Bot
                 currentCommandSteps = 0;
 
                 await botClient.SendTextMessageAsync(
-                chatId: chatId,
-                text: "Команду відмінено",
-                replyMarkup: new ReplyKeyboardRemove(),
-                disableNotification: true,
-                cancellationToken: cancellationToken);
+                    chatId: chatId,
+                    text: "Команду відмінено",
+                    replyMarkup: new ReplyKeyboardRemove(),
+                    disableNotification: true,
+                    cancellationToken: cancellationToken);
                 return;
             }
 
@@ -96,7 +96,6 @@ namespace TicketFinder_Bot
                             _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
                         }
 
-                        //TO DO: reply markup
                         ReplyKeyboardMarkup replyKeyboardMarkup;
                         switch (currentCommandSteps + 1)
                         {
@@ -109,15 +108,15 @@ namespace TicketFinder_Bot
                                 });
 
                                 await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: SD.search_command_messages[++currentCommandSteps],
-                                parseMode: ParseMode.Html,
-                                replyMarkup: replyKeyboardMarkup,
-                                disableNotification: true,
-                                cancellationToken: cancellationToken);
+                                    chatId: chatId,
+                                    text: SD.search_command_messages[++currentCommandSteps],
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: replyKeyboardMarkup,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
                                 break;
                             case 2:
-                                replyKeyboardMarkup = new(new[]
+                                replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]
                                 {
                                     new KeyboardButton[] {"00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00"},
                                     new KeyboardButton[] {"08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"},
@@ -125,29 +124,29 @@ namespace TicketFinder_Bot
                                 });
 
                                 await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: SD.search_command_messages[++currentCommandSteps],
-                                parseMode: ParseMode.Html,
-                                replyMarkup: replyKeyboardMarkup,
-                                disableNotification: true,
-                                cancellationToken: cancellationToken);
+                                    chatId: chatId,
+                                    text: SD.search_command_messages[++currentCommandSteps],
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: replyKeyboardMarkup,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
                                 break;
                             case 3:
                                 await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: SD.search_command_messages[++currentCommandSteps],
-                                parseMode: ParseMode.Html,
-                                replyMarkup: new ReplyKeyboardRemove(),
-                                disableNotification: true,
-                                cancellationToken: cancellationToken);
+                                    chatId: chatId,
+                                    text: SD.search_command_messages[++currentCommandSteps],
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: new ReplyKeyboardRemove(),
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
                                 break;
                             default:
                                 await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: SD.search_command_messages[++currentCommandSteps],
-                                parseMode: ParseMode.Html,
-                                disableNotification: true,
-                                cancellationToken: cancellationToken);
+                                    chatId: chatId,
+                                    text: SD.search_command_messages[++currentCommandSteps],
+                                    parseMode: ParseMode.Html,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
                                 break;
                         }
 
@@ -157,12 +156,17 @@ namespace TicketFinder_Bot
                             if (!tickets.Any())
                             {
                                 await botClient.SendTextMessageAsync(
-                                chatId: chatId,
-                                text: "Немає квитків на вказаний маршрут за введеними даними(",
-                                cancellationToken: cancellationToken);
+                                    chatId: chatId,
+                                    text: "Немає квитків на вказаний маршрут за введеними даними(",
+                                    cancellationToken: cancellationToken);
                             }
                             else
                             {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: "Знайдені квитки на вказаний маршрут:",
+                                    cancellationToken: cancellationToken);
+
                                 foreach (TicketDTO ticket in tickets)
                                 {
                                     InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
@@ -171,19 +175,14 @@ namespace TicketFinder_Bot
                                         inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticket.Items[i].Class}: {ticket.Items[i].Places}", ticket.Items[i].URL);
                                     }
 
-                                    InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);
+                                    InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);                 
 
                                     await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: "Знайдені квитки на вказаний маршрут:",
-                                    cancellationToken: cancellationToken);
-
-                                    await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: SD.ConstructTicketMessage(ticket),
-                                    parseMode: ParseMode.Html,
-                                    replyMarkup: inlineKeyboardMarkup,
-                                    cancellationToken: cancellationToken);
+                                        chatId: chatId,
+                                        text: SD.ConstructTicketMessage(ticket),
+                                        parseMode: ParseMode.Html,
+                                        replyMarkup: inlineKeyboardMarkup,
+                                        cancellationToken: cancellationToken);
                                 }
                             }
                             currentCommand = "";

@@ -1,4 +1,6 @@
 
+using Microsoft.EntityFrameworkCore;
+using TicketsFinder_API.Models.Data;
 using TicketsFinder_API.Services;
 using TicketsFinder_API.Services.IServices;
 
@@ -11,6 +13,9 @@ namespace TicketsFinder_API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
             builder.Services.AddScoped<ITicketsService, TicketsService>();
 
             builder.Services.AddControllers();
