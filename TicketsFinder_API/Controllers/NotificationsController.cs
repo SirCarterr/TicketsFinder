@@ -25,8 +25,8 @@ namespace TicketsFinder_API.Controllers
                 int check = await _notificationService.CheckCount(notificationDTO.ChatId);
                 if (check == 1)
                 {
-                    int result = await _notificationService.CreateNotification(notificationDTO);
-                    return result == 1 ? StatusCode(StatusCodes.Status201Created) : StatusCode(StatusCodes.Status500InternalServerError);
+                    await _notificationService.CreateNotification(notificationDTO);
+                    return StatusCode(StatusCodes.Status201Created);
                 }
                 return StatusCode(StatusCodes.Status405MethodNotAllowed);
             }
@@ -46,7 +46,7 @@ namespace TicketsFinder_API.Controllers
             try
             {
                 int result = await _notificationService.UpdateNotification(notificationDTO);
-                return result == 1 ? StatusCode(StatusCodes.Status202Accepted) : StatusCode(StatusCodes.Status500InternalServerError);
+                return result == 1 ? StatusCode(StatusCodes.Status202Accepted) : StatusCode(StatusCodes.Status404NotFound);
             }
             catch (DbUpdateException ex)
             {
