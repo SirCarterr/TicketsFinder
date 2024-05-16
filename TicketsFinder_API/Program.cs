@@ -19,6 +19,7 @@ namespace TicketsFinder_API
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddScoped<ITicketsService, TicketsService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
