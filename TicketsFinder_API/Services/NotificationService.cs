@@ -18,12 +18,14 @@ namespace TicketsFinder_API.Services
             _mapper = mapper;
         }
 
+        public async Task<int> CheckCount(int chatId)
+        {
+            int count = await _db.Notifications.CountAsync(n => n.ChatId == chatId);
+            return count == 3 ? 0: 1;
+        }
+
         public async Task<int> CreateNotification(NotificationDTO notificationDTO)
         {
-            int count = await _db.Notifications.CountAsync(n => n.ChatId == notificationDTO.ChatId);
-            if (count == 3)
-                return -1;
-
             await _db.Notifications.AddAsync(_mapper.Map<NotificationDTO, Notification>(notificationDTO));
             return await _db.SaveChangesAsync();
         }

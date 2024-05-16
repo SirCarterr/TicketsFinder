@@ -20,6 +20,7 @@ namespace TicketsFinder_API
 
             builder.Services.AddScoped<ITicketsService, TicketsService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IUserHistoryService, UserHistotyService>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
