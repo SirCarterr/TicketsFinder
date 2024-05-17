@@ -51,7 +51,7 @@ namespace TicketFinder_Bot.Service
             }
             if (response.StatusCode.Equals(404))
             {
-                return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення не зайдене" };
+                return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
             }
             if (response.StatusCode.Equals(502))
             {
@@ -68,7 +68,7 @@ namespace TicketFinder_Bot.Service
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<string>(contentTemp);
+                var result = JsonConvert.DeserializeObject<IEnumerable<NotificationDTO>>(contentTemp);
                 return new ResponseModelDTO { IsSuccess = true, Data = result };
             }
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
@@ -86,7 +86,13 @@ namespace TicketFinder_Bot.Service
             }
             if (response.StatusCode.Equals(404))
             {
-                return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення не зайдене" };
+                return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
+            }
+            if (response.StatusCode.Equals(502))
+            {
+                var contentTemp = await response.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<string>(contentTemp);
+                return new ResponseModelDTO { IsSuccess = false, Message = result };
             }
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
