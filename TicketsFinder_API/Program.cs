@@ -12,6 +12,10 @@ namespace TicketsFinder_API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //Logging setup
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+
             // Add services to the container.
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));

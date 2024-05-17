@@ -11,10 +11,12 @@ namespace TicketsFinder_API.Controllers
     public class UserHistoriesController : ControllerBase
     {
         private readonly IUserHistoryService _userHistoryService;
+        private readonly ILogger _logger;
 
-        public UserHistoriesController(IUserHistoryService userHistoryService)
+        public UserHistoriesController(IUserHistoryService userHistoryService, ILogger<UserHistoriesController> logger)
         {
             _userHistoryService = userHistoryService;
+            _logger = logger;
         }
 
         [HttpPut]
@@ -33,13 +35,10 @@ namespace TicketsFinder_API.Controllers
                 }
                 return StatusCode(StatusCodes.Status202Accepted);
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, "db update error: " + ex.InnerException?.Message);
-            }
-            catch
-            {
-                throw;
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 

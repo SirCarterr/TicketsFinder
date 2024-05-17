@@ -11,10 +11,12 @@ namespace TicketsFinder_API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+        private readonly ILogger _logger;
 
-        public NotificationsController(INotificationService notificationService)
+        public NotificationsController(INotificationService notificationService, ILogger<NotificationsController> logger)
         {
             _notificationService = notificationService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -30,13 +32,10 @@ namespace TicketsFinder_API.Controllers
                 }
                 return StatusCode(StatusCodes.Status405MethodNotAllowed);
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, "db update error: " + ex.InnerException?.Message);
-            }
-            catch 
-            {
-                throw;
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -48,13 +47,10 @@ namespace TicketsFinder_API.Controllers
                 int result = await _notificationService.UpdateNotification(notificationDTO);
                 return result == 1 ? StatusCode(StatusCodes.Status202Accepted) : StatusCode(StatusCodes.Status404NotFound);
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, "db update error: " + ex.InnerException?.Message);
-            }
-            catch
-            {
-                throw;
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
@@ -66,13 +62,10 @@ namespace TicketsFinder_API.Controllers
                 int result = await _notificationService.DeleteNotification(id);
                 return result == 1 ? StatusCode(StatusCodes.Status201Created) : StatusCode(StatusCodes.Status404NotFound);
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status502BadGateway, "db update error: " + ex.InnerException?.Message);
-            }
-            catch
-            {
-                throw;
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
