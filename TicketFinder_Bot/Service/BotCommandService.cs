@@ -41,7 +41,7 @@ namespace TicketFinder_Bot.Service
                     return (true, result);
 
                 default:
-                    return (false, null);
+                    return (false, new string[2]);
             }
         }
     }

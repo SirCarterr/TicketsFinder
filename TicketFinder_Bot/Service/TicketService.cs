@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TicketFinder_Bot.Service.IService;
+using TicketFinder_Common;
 using TicketFinder_Models;
 
 namespace TicketFinder_Bot.Service
 {
     public class TicketService : ITicketService
     {
-        private readonly string url = "https://localhost:7196/api/tickets";
         private readonly HttpClient _client;
 
         public string[] RequestSearch { get; set; } //[from, to, date, time]
@@ -24,7 +24,7 @@ namespace TicketFinder_Bot.Service
 
         public async Task<List<TicketDTO>> GetTickets()
         {
-            string fullUrl = url + $"?from={RequestSearch[0]}&to={RequestSearch[1]}";
+            string fullUrl = SD.api_url + $"tickets?from={RequestSearch[0]}&to={RequestSearch[1]}";
             fullUrl += $"&date={RequestSearch[2]}";
             fullUrl += $"&time={RequestSearch[3]}";
 
