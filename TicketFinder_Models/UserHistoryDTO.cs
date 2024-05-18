@@ -10,7 +10,7 @@ namespace TicketFinder_Models
     public class UserHistoryDTO
     {
         public Guid Id { get; set; }
-        public int ChatId { get; set; }
+        public long ChatId { get; set; }
         [Required]
         public string History { get; set; }
     }

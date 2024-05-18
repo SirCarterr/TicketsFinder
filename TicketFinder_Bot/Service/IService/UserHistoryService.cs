@@ -18,16 +18,20 @@ namespace TicketFinder_Bot.Service.IService
             _client = new HttpClient();
         }
 
-        public async Task<ResponseModelDTO> GetUserHistory(int chatId)
+        public async Task<ResponseModelDTO> GetUserHistory(long chatId)
         {
             var response = await _client.GetAsync(SD.api_url + $"user-histories?chatId={chatId}");
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<UserHistoryDTO>(contentTemp);
-                return new ResponseModelDTO { IsSuccess = false, Data = result };
+                return new ResponseModelDTO { IsSuccess = true, Data = result };
             }
-            return new ResponseModelDTO { IsSuccess = false };
+            if ((int)response.StatusCode == 404)
+            {
+                return new ResponseModelDTO { IsSuccess = false, Message = "Історія пуста" };
+            }
+            return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
         public async Task<ResponseModelDTO> UpdateUserHistory(UserHistoryDTO userHistoryDTO)
@@ -38,17 +42,9 @@ namespace TicketFinder_Bot.Service.IService
             var response = await _client.PutAsync(SD.api_url + "user-histories", bodyContent);
             if (response.IsSuccessStatusCode)
             {
-                return new ResponseModelDTO { IsSuccess = true};
-            }
-            if (response.StatusCode.Equals(404))
-            {
-                return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення не зайдене" };
-            }
-            if (response.StatusCode.Equals(502))
-            {
-                return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка збереження даних" };
-            }
-            return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
+                return new ResponseModelDTO { IsSuccess = true };
+            }    
+            return new ResponseModelDTO { IsSuccess = false };
         }
     }
 }

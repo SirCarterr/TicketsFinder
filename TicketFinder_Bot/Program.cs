@@ -9,6 +9,7 @@ using TicketFinder_Bot.Service;
 using TicketFinder_Common;
 using TicketFinder_Models;
 using Telegram.Bot.Types.ReplyMarkups;
+using TicketFinder_Bot.Helper;
 
 namespace TicketFinder_Bot
 {
@@ -16,6 +17,7 @@ namespace TicketFinder_Bot
     {
         private static readonly IBotCommandService _botCommandService = new BotCommandService();
         private static readonly ITicketService _ticketService = new TicketService();
+        private static readonly IUserHistoryService _userHistoryService = new UserHistoryService();
 
         private static string currentCommand = "";
         private static int currentCommandSteps = 0;
@@ -28,6 +30,7 @@ namespace TicketFinder_Bot
                 return;
 
             var chatId = message.Chat.Id;
+            
             if (update.Message.Text is not { } messageText)
             {
                 await botClient.SendTextMessageAsync(
@@ -39,6 +42,12 @@ namespace TicketFinder_Bot
             }
 
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+
+            // Callback processing
+            if (update.Type == UpdateType.CallbackQuery)
+            {
+                
+            }
 
             // If no command is executed
             if (string.IsNullOrEmpty(currentCommand))
@@ -54,6 +63,34 @@ namespace TicketFinder_Bot
                             disableNotification: true,
                             cancellationToken: cancellationToken);
                         break;
+                    case "/history":
+                        ResponseModelDTO response = await _userHistoryService.GetUserHistory(message.Chat.Id);
+                        if (response.IsSuccess)
+                        {
+                            UserHistoryDTO userHistoryDTO = (UserHistoryDTO)response.Data!;
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Історія останніх 5 пошуків:",
+                                replyMarkup: ReplyKeyboards.GetUserHistoryMarkup(userHistoryDTO),
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: response.Message!,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                        }
+                        break;
+                    case "/cancel":
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Жодна команда не виконується",
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                        break;
                     default:
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
@@ -65,6 +102,7 @@ namespace TicketFinder_Bot
                 return;
             }
 
+            // Сancel executed command
             if (messageText.Equals("/cancel"))
             {
                 currentCommand = "";
@@ -90,44 +128,30 @@ namespace TicketFinder_Bot
                         {
                             _ticketService.RequestSearch[currentCommandSteps] = data[0];
                             _ticketService.RequestSearch[currentCommandSteps + 1] = data[1];
+                            await _userHistoryService.UpdateUserHistory(new() { ChatId = chatId, History = $"{data[0]}-{data[1]}" });
                         }
                         else
                         {
                             _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
                         }
 
-                        ReplyKeyboardMarkup replyKeyboardMarkup;
                         switch (currentCommandSteps + 1)
                         {
                             case 1:
-                                replyKeyboardMarkup = new(new[]
-                                {
-                                    new KeyboardButton[] {"Сьогодні"},
-                                    new KeyboardButton[] {"Завтра"},
-                                    new KeyboardButton[] {"Післязавтра"},
-                                });
-
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
                                     text: SD.search_command_messages[++currentCommandSteps],
                                     parseMode: ParseMode.Html,
-                                    replyMarkup: replyKeyboardMarkup,
+                                    replyMarkup: ReplyKeyboards.searchDateMarkup,
                                     disableNotification: true,
                                     cancellationToken: cancellationToken);
                                 break;
                             case 2:
-                                replyKeyboardMarkup = new ReplyKeyboardMarkup(new[]
-                                {
-                                    new KeyboardButton[] {"00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00"},
-                                    new KeyboardButton[] {"08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"},
-                                    new KeyboardButton[] {"16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"},
-                                });
-
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
                                     text: SD.search_command_messages[++currentCommandSteps],
                                     parseMode: ParseMode.Html,
-                                    replyMarkup: replyKeyboardMarkup,
+                                    replyMarkup: ReplyKeyboards.searchTimeMarkup,
                                     disableNotification: true,
                                     cancellationToken: cancellationToken);
                                 break;
@@ -157,7 +181,7 @@ namespace TicketFinder_Bot
                             {
                                 await botClient.SendTextMessageAsync(
                                     chatId: chatId,
-                                    text: "Немає квитків на вказаний маршрут за введеними даними(",
+                                    text: "Немає квитків на вказаний маршрут за введеними даними",
                                     cancellationToken: cancellationToken);
                             }
                             else
@@ -183,7 +207,7 @@ namespace TicketFinder_Bot
                                         parseMode: ParseMode.Html,
                                         replyMarkup: inlineKeyboardMarkup,
                                         cancellationToken: cancellationToken);
-                                }
+                                } 
                             }
                             currentCommand = "";
                             currentCommandSteps = 0;
@@ -196,6 +220,9 @@ namespace TicketFinder_Bot
                         text: "Помилка:\n" + data[1],
                         cancellationToken: cancellationToken);
                     }
+                    break;
+                case "/history":
+                    
                     break;
             }
             return;

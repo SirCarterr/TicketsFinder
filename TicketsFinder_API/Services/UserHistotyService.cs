@@ -24,7 +24,7 @@ namespace TicketsFinder_API.Services
             return await _db.SaveChangesAsync();
         }
 
-        public async Task<UserHistoryDTO> GetHistory(int chatId)
+        public async Task<UserHistoryDTO> GetHistory(long chatId)
         {
             UserHistory? userHistory = await _db.UserHistories.FirstOrDefaultAsync(h => h.ChatId == chatId);
             if (userHistory != null)
@@ -37,11 +37,25 @@ namespace TicketsFinder_API.Services
             UserHistory? userHistory = await _db.UserHistories.FirstOrDefaultAsync(h => h.ChatId == userHistoryDTO.ChatId);
             if (userHistory != null)
             {
-                userHistory.History = userHistoryDTO.History;
+                userHistory.History = HistoryHelper(userHistory.History, userHistoryDTO.History);
                 _db.UserHistories.Update(userHistory);
                 return await _db.SaveChangesAsync();
             }
             return 0;
+        }
+
+        private static string HistoryHelper(string origin, string addition)
+        {
+            string[] origin_arr = origin.Split(';');
+            if (origin_arr.Length == 5)
+            {
+                for (int i = 1; i < origin_arr.Length; i++)
+                {
+                    addition += ";" + origin_arr[i];
+                }
+                return addition;
+            }
+            return addition + ";" + origin;
         }
     }
 }

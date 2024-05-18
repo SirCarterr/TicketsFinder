@@ -8,7 +8,7 @@ namespace TicketsFinder_API.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         [Required]
-        public int ChatId { get; set; }
+        public long ChatId { get; set; }
         [Required]
         public string From { get; set; }
         [Required]

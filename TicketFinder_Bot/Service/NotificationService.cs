@@ -29,11 +29,11 @@ namespace TicketFinder_Bot.Service
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення створене" };
             }
-            if (response.StatusCode.Equals(405))
+            if ((int)response.StatusCode == 405)
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Ви досягли ліміту в 3 сповіщення" };
             }
-            if (response.StatusCode.Equals(502))
+            if ((int)response.StatusCode == 502)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<string>(contentTemp);
@@ -49,11 +49,11 @@ namespace TicketFinder_Bot.Service
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення видалене" };
             }
-            if (response.StatusCode.Equals(404))
+            if ((int)response.StatusCode == 404)
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
             }
-            if (response.StatusCode.Equals(502))
+            if ((int)response.StatusCode == 502)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<string>(contentTemp);
@@ -84,11 +84,11 @@ namespace TicketFinder_Bot.Service
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення оновлене" };
             }
-            if (response.StatusCode.Equals(404))
+            if ((int)response.StatusCode == 404)
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
             }
-            if (response.StatusCode.Equals(502))
+            if ((int)response.StatusCode == 502)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<string>(contentTemp);

@@ -10,7 +10,7 @@ namespace TicketFinder_Models
     public class NotificationDTO
     {
         public Guid Id { get; set; }      
-        public int ChatId { get; set; }
+        public long ChatId { get; set; }
         [Required]
         public string From { get; set; }
         [Required]

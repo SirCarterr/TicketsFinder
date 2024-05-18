@@ -18,7 +18,7 @@ namespace TicketsFinder_API.Services
             _mapper = mapper;
         }
 
-        public async Task<int> CheckCount(int chatId)
+        public async Task<int> CheckCount(long chatId)
         {
             int count = await _db.Notifications.CountAsync(n => n.ChatId == chatId);
             return count == 3 ? 0: 1;
@@ -41,7 +41,7 @@ namespace TicketsFinder_API.Services
             return 0;
         }
 
-        public async Task<IEnumerable<NotificationDTO>> GetNotifications(int chatId)
+        public async Task<IEnumerable<NotificationDTO>> GetNotifications(long chatId)
         {
             return _mapper.Map<IEnumerable<Notification>, IEnumerable<NotificationDTO>>(_db.Notifications);
         }

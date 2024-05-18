@@ -25,7 +25,7 @@ namespace TicketsFinder_API.Controllers
             try
             {
                 UserHistoryDTO userHistory_db = await _userHistoryService.GetHistory(userHistoryDTO.ChatId);
-                if (string.IsNullOrEmpty(userHistory_db.Id.ToString()))
+                if (userHistory_db.Id == Guid.Empty)
                 {
                     _logger.LogInformation($"UserHistory created for chat {userHistoryDTO.ChatId}", DateTime.Now);
                     await _userHistoryService.CreateHistory(userHistoryDTO);
@@ -45,11 +45,11 @@ namespace TicketsFinder_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] int chatId)
+        public async Task<IActionResult> Get([FromQuery] long chatId)
         {
             _logger.LogInformation($"UserHistory is retrieved for chat {chatId}", DateTime.Now);
             UserHistoryDTO userHistoryDTO = await _userHistoryService.GetHistory(chatId);
-            if (string.IsNullOrEmpty(userHistoryDTO.Id.ToString()))
+            if (userHistoryDTO.Id == Guid.Empty)
             {
                 _logger.LogInformation($"UserHistory not found for chat {chatId}", DateTime.Now);
                 return StatusCode(StatusCodes.Status404NotFound);

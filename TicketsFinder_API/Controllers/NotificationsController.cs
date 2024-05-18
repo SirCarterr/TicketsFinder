@@ -84,7 +84,7 @@ namespace TicketsFinder_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] int chatId)
+        public async Task<IActionResult> GetAll([FromQuery] long chatId)
         {
             _logger.LogInformation($"Notifications for chat {chatId} are retrieved", DateTime.Now);
             return Ok(await _notificationService.GetNotifications(chatId));

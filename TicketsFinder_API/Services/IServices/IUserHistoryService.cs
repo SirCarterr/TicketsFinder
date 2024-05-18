@@ -6,6 +6,6 @@ namespace TicketsFinder_API.Services.IServices
     {
         public Task<int> CreateHistory(UserHistoryDTO userHistoryDTO);
         public Task<int> UpdateHistory(UserHistoryDTO userHistoryDTO);
-        public Task<UserHistoryDTO> GetHistory(int chatId);
+        public Task<UserHistoryDTO> GetHistory(long chatId);
     }
 }

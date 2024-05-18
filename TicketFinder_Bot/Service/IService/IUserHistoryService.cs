@@ -10,6 +10,6 @@ namespace TicketFinder_Bot.Service.IService
     public interface IUserHistoryService
     {
         public Task<ResponseModelDTO> UpdateUserHistory(UserHistoryDTO userHistoryDTO);
-        public Task<ResponseModelDTO> GetUserHistory(int chatId);
+        public Task<ResponseModelDTO> GetUserHistory(long chatId);
     }
 }
