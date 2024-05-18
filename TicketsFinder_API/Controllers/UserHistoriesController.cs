@@ -27,17 +27,19 @@ namespace TicketsFinder_API.Controllers
                 UserHistoryDTO userHistory_db = await _userHistoryService.GetHistory(userHistoryDTO.ChatId);
                 if (string.IsNullOrEmpty(userHistory_db.Id.ToString()))
                 {
+                    _logger.LogInformation($"UserHistory created for chat {userHistoryDTO.ChatId}", DateTime.Now);
                     await _userHistoryService.CreateHistory(userHistoryDTO);
                 }
                 else
                 {
+                    _logger.LogInformation($"UserHistory updated for chat {userHistoryDTO.ChatId}", DateTime.Now);
                     await _userHistoryService.UpdateHistory(userHistoryDTO);
                 }
                 return StatusCode(StatusCodes.Status202Accepted);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -45,9 +47,13 @@ namespace TicketsFinder_API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int chatId)
         {
+            _logger.LogInformation($"UserHistory is retrieved for chat {chatId}", DateTime.Now);
             UserHistoryDTO userHistoryDTO = await _userHistoryService.GetHistory(chatId);
             if (string.IsNullOrEmpty(userHistoryDTO.Id.ToString()))
+            {
+                _logger.LogInformation($"UserHistory not found for chat {chatId}", DateTime.Now);
                 return StatusCode(StatusCodes.Status404NotFound);
+            }
             return Ok(userHistoryDTO);
         }
     }

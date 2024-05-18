@@ -27,9 +27,11 @@ namespace TicketsFinder_API.Controllers
                 int check = await _notificationService.CheckCount(notificationDTO.ChatId);
                 if (check == 1)
                 {
+                    _logger.LogInformation($"New notification created for chat {notificationDTO.ChatId}", DateTime.Now);  
                     await _notificationService.CreateNotification(notificationDTO);
                     return StatusCode(StatusCodes.Status201Created);
                 }
+                _logger.LogInformation($"New notification not created due to reached limit for chat {notificationDTO.ChatId}", DateTime.Now);
                 return StatusCode(StatusCodes.Status405MethodNotAllowed);
             }
             catch (Exception ex)
@@ -45,7 +47,13 @@ namespace TicketsFinder_API.Controllers
             try
             {
                 int result = await _notificationService.UpdateNotification(notificationDTO);
-                return result == 1 ? StatusCode(StatusCodes.Status202Accepted) : StatusCode(StatusCodes.Status404NotFound);
+                if (result == 1)
+                {
+                    _logger.LogInformation($"Notification {notificationDTO.Id} updated for chat {notificationDTO.ChatId}", DateTime.Now);
+                    return StatusCode(StatusCodes.Status202Accepted);
+                }
+                _logger.LogInformation($"Notification {notificationDTO.Id} is not found for chat {notificationDTO.ChatId}", DateTime.Now);
+                return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception ex)
             {
@@ -60,7 +68,13 @@ namespace TicketsFinder_API.Controllers
             try
             {
                 int result = await _notificationService.DeleteNotification(id);
-                return result == 1 ? StatusCode(StatusCodes.Status201Created) : StatusCode(StatusCodes.Status404NotFound);
+                if (result == 1)
+                {
+                    _logger.LogInformation($"Notification {id} deleted", DateTime.Now);
+                    return Ok();
+                }
+                _logger.LogInformation($"Notification {id} is not found", DateTime.Now);
+                return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception ex)
             {
@@ -72,6 +86,7 @@ namespace TicketsFinder_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int chatId)
         {
+            _logger.LogInformation($"Notifications for chat {chatId} are retrieved", DateTime.Now);
             return Ok(await _notificationService.GetNotifications(chatId));
         }
     }
