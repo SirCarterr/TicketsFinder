@@ -10,6 +10,7 @@ using TicketFinder_Common;
 using TicketFinder_Models;
 using Telegram.Bot.Types.ReplyMarkups;
 using TicketFinder_Bot.Helper;
+using System.Net.Sockets;
 
 namespace TicketFinder_Bot
 {
@@ -18,6 +19,7 @@ namespace TicketFinder_Bot
         private static readonly IBotCommandService _botCommandService = new BotCommandService();
         private static readonly ITicketService _ticketService = new TicketService();
         private static readonly IUserHistoryService _userHistoryService = new UserHistoryService();
+        private static readonly INotificationService _notificationService = new NotificationService();
 
         private static string currentCommand = "";
         private static int currentCommandSteps = 0;
@@ -62,7 +64,7 @@ namespace TicketFinder_Bot
                             chatId: callbackQuery.Message.Chat.Id,
                             text: SD.search_command_messages[++currentCommandSteps],
                             parseMode: ParseMode.Html,
-                            replyMarkup: ReplyKeyboards.searchDateMarkup,
+                            replyMarkup: ReplyKeyboards.searchReplyMarkups[currentCommandSteps],
                             disableNotification: true,
                             cancellationToken: cancellationToken);
                         break;
@@ -93,6 +95,7 @@ namespace TicketFinder_Bot
             // If no command is executed
             if (string.IsNullOrEmpty(currentCommand))
             {
+                ResponseModelDTO response;
                 switch (messageText)
                 {
                     case "/search":
@@ -105,7 +108,7 @@ namespace TicketFinder_Bot
                             cancellationToken: cancellationToken);
                         break;
                     case "/history":
-                        ResponseModelDTO response = await _userHistoryService.GetUserHistory(message.Chat.Id);
+                        response = await _userHistoryService.GetUserHistory(message.Chat.Id);
                         if (response.IsSuccess)
                         {
                             UserHistoryDTO userHistoryDTO = (UserHistoryDTO)response.Data!;
@@ -124,6 +127,50 @@ namespace TicketFinder_Bot
                                 disableNotification: true,
                                 cancellationToken: cancellationToken);
                         }
+                        break;
+                    case "/notifications":
+                        response = await _notificationService.GetNotifications(chatId);
+                        if (response.IsSuccess)
+                        {
+                            IEnumerable<NotificationDTO> notificationDTOs = (IEnumerable<NotificationDTO>)response.Data!;
+                            if (notificationDTOs.Any())
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: SD.notifications_any,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                                foreach (NotificationDTO notificationDTO in notificationDTOs)
+                                {
+                                    await botClient.SendTextMessageAsync(
+                                        chatId: chatId,
+                                        text: SD.ConstructNotificationMessage(notificationDTO),
+                                        parseMode: ParseMode.Html,
+                                        replyMarkup: ReplyKeyboards.GetNotificationMarkup(notificationDTO),
+                                        disableNotification: true,
+                                        cancellationToken: cancellationToken);
+                                }
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: chatId,
+                                    text: SD.notifications_empty,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                            }
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: response.Message!,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                        }
+                        break;
+                    case "/notification-create":
+                        
                         break;
                     case "/cancel":
                         await botClient.SendTextMessageAsync(
@@ -231,8 +278,14 @@ namespace TicketFinder_Bot
                         cancellationToken: cancellationToken);
                     }
                     break;
-                case "/history":
+                case "/notification-create":
                     
+                    break;
+                case "/notification-update":
+
+                    break;
+                case "/notification-delete":
+
                     break;
             }
             return;

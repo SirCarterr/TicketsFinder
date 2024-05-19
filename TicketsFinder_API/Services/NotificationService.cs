@@ -55,6 +55,8 @@ namespace TicketsFinder_API.Services
                 notification.To = notificationDTO.To;
                 notification.Days = notificationDTO.Days;
                 notification.Time = notificationDTO.Time;
+                notification.DaysToTrip = notificationDTO.DaysToTrip;
+                notification.TicketTime = notificationDTO.TicketTime;
                 _db.Notifications.Update(notification);
                 return await _db.SaveChangesAsync();
             }

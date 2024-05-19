@@ -16,8 +16,12 @@ namespace TicketFinder_Models
         [Required]
         public string To { get; set; }
         [Required]
-        public string Days { get; set; }
+        public string Days { get; set; } // days of week
         [Required]
-        public string Time { get; set; } //in hours
+        public string Time { get; set; } // in hours
+        [Required]
+        public int DaysToTrip { get; set; } 
+        [Required]
+        public string TicketTime { get; set;} // in hours
     }
 }

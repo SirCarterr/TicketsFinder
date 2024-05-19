@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TicketFinder_Bot.Service.IService;
 using TicketFinder_Common;
 using TicketFinder_Models;
 
-namespace TicketFinder_Bot.Service.IService
+namespace TicketFinder_Bot.Service
 {
     public class UserHistoryService : IUserHistoryService
     {
@@ -43,7 +44,7 @@ namespace TicketFinder_Bot.Service.IService
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true };
-            }    
+            }
             return new ResponseModelDTO { IsSuccess = false };
         }
     }

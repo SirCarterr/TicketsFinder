@@ -62,7 +62,7 @@ namespace TicketFinder_Bot.Service
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
-        public async Task<ResponseModelDTO> GetNotifications(int chatId)
+        public async Task<ResponseModelDTO> GetNotifications(long chatId)
         {
             var response = await _client.GetAsync(SD.api_url + $"notifications?chatId={chatId}");
             if (response.IsSuccessStatusCode)
