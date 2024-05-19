@@ -26,6 +26,52 @@ namespace TicketFinder_Bot
         {
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
 
+            // Callback processing
+            if (update.Type == UpdateType.CallbackQuery)
+            {
+                CallbackQuery callbackQuery = update.CallbackQuery!;
+
+                if (!string.IsNullOrEmpty(currentCommand))
+                    await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message!.Chat.Id,
+                            text: "В даний момент виконується інша команда",
+                            parseMode: ParseMode.Html,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+
+                if (callbackQuery.Data is not { } callbackQueryData)
+                    return;
+
+                string[] data = callbackQueryData.Split(" ");
+                switch (data[0])    
+                {
+                    case "search":
+                        string[] route = data[1].Split("-");
+                        currentCommand = SD.search_command;
+                        _ticketService.RequestSearch[currentCommandSteps] = route[0];
+                        _ticketService.RequestSearch[currentCommandSteps + 1] = route[1];
+                        await _userHistoryService.UpdateUserHistory(new() { ChatId = callbackQuery.Message!.Chat.Id, History = $"{route[0]}-{route[1]}" });
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message.Chat.Id,
+                            text: $"Виконую пошук: <b>{route[0]} -> {route[1]}</b>",
+                            parseMode: ParseMode.Html,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                        await botClient.SendTextMessageAsync(
+                            chatId: callbackQuery.Message.Chat.Id,
+                            text: SD.search_command_messages[++currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            replyMarkup: ReplyKeyboards.searchDateMarkup,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                        break;
+                    default:
+                        break;
+                }
+                return;
+            }
+
             if (update.Message is not { } message)
                 return;
 
@@ -42,12 +88,6 @@ namespace TicketFinder_Bot
             }
 
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
-
-            // Callback processing
-            if (update.Type == UpdateType.CallbackQuery)
-            {
-                
-            }
 
             // If no command is executed
             if (string.IsNullOrEmpty(currentCommand))

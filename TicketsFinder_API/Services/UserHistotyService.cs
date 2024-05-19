@@ -46,16 +46,12 @@ namespace TicketsFinder_API.Services
 
         private static string HistoryHelper(string origin, string addition)
         {
-            string[] origin_arr = origin.Split(';');
-            if (origin_arr.Length == 5)
-            {
-                for (int i = 1; i < origin_arr.Length; i++)
-                {
-                    addition += ";" + origin_arr[i];
-                }
-                return addition;
-            }
-            return addition + ";" + origin;
+            var originList = origin.Split(';').ToList();
+
+            originList.Remove(addition);
+            originList.Insert(0, addition);
+
+            return string.Join(";", originList.Take(5));
         }
     }
 }
