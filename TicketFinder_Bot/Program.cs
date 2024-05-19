@@ -72,6 +72,7 @@ namespace TicketFinder_Bot
                 return;
             }
 
+            // If input is not a text message
             if (update.Message is not { } message)
                 return;
 
@@ -175,44 +176,13 @@ namespace TicketFinder_Bot
                             _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
                         }
 
-                        switch (currentCommandSteps + 1)
-                        {
-                            case 1:
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: SD.search_command_messages[++currentCommandSteps],
-                                    parseMode: ParseMode.Html,
-                                    replyMarkup: ReplyKeyboards.searchDateMarkup,
-                                    disableNotification: true,
-                                    cancellationToken: cancellationToken);
-                                break;
-                            case 2:
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: SD.search_command_messages[++currentCommandSteps],
-                                    parseMode: ParseMode.Html,
-                                    replyMarkup: ReplyKeyboards.searchTimeMarkup,
-                                    disableNotification: true,
-                                    cancellationToken: cancellationToken);
-                                break;
-                            case 3:
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: SD.search_command_messages[++currentCommandSteps],
-                                    parseMode: ParseMode.Html,
-                                    replyMarkup: new ReplyKeyboardRemove(),
-                                    disableNotification: true,
-                                    cancellationToken: cancellationToken);
-                                break;
-                            default:
-                                await botClient.SendTextMessageAsync(
-                                    chatId: chatId,
-                                    text: SD.search_command_messages[++currentCommandSteps],
-                                    parseMode: ParseMode.Html,
-                                    disableNotification: true,
-                                    cancellationToken: cancellationToken);
-                                break;
-                        }
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: SD.search_command_messages[++currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            replyMarkup: ReplyKeyboards.searchReplyMarkups[currentCommandSteps],
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
 
                         if (currentCommandSteps == SD.search_command_steps)
                         {
