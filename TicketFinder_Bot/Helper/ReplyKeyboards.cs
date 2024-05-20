@@ -39,7 +39,7 @@ namespace TicketFinder_Bot.Helper
             { 3, new ReplyKeyboardRemove() }
         };
 
-        public static readonly Dictionary<int, IReplyMarkup> notificationCreateReplyMarkups = new()
+        public static readonly Dictionary<int, IReplyMarkup> notificationReplyMarkups = new()
         {
             { 1, timeReplyMarkup },
             { 2, daysReplyMarkup },

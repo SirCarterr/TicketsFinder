@@ -10,8 +10,6 @@ using TicketFinder_Common;
 using TicketFinder_Models;
 using Telegram.Bot.Types.ReplyMarkups;
 using TicketFinder_Bot.Helper;
-using System.Net.Sockets;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TicketFinder_Bot
 {
@@ -68,6 +66,49 @@ namespace TicketFinder_Bot
                             replyMarkup: ReplyKeyboards.searchReplyMarkups[currentCommandSteps],
                             disableNotification: true,
                             cancellationToken: cancellationToken);
+                        break;
+                    case "notification-update":
+                        ResponseModelDTO notificationsResponse = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
+                        if (notificationsResponse != null)
+                        {
+                            NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)notificationsResponse.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data[1]));
+                            if(notificationDTO != null)
+                            {
+                                currentCommand = SD.notificationUpdate_command;
+                                _notificationService.RequestNotificationDTO = notificationDTO;
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: callbackQuery.Message.Chat.Id,
+                                    text: $"Виконую редагування обраного сповіщення:\nЩоб пропустити поле введіть <b>\"-\"</b>",
+                                    parseMode: ParseMode.Html,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                                await botClient.SendTextMessageAsync(
+                                    chatId: callbackQuery.Message.Chat.Id,
+                                    text: SD.notification_command_messages[currentCommandSteps],
+                                    parseMode: ParseMode.Html,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: callbackQuery.Message.Chat.Id,
+                                    text: $"Це сповіщення вже не існує",
+                                    parseMode: ParseMode.Html,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                            }
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: callbackQuery.Message.Chat.Id,
+                                text: $"Неможливо оновити це сповіщення",
+                                parseMode: ParseMode.Html,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                        }                       
                         break;
                     default:
                         break;
@@ -174,7 +215,7 @@ namespace TicketFinder_Bot
                         currentCommand = SD.notificationCreate_command;
                         await botClient.SendTextMessageAsync(
                             chatId: chatId,
-                            text: SD.notificationCreate_command_messages[currentCommandSteps],
+                            text: SD.notification_command_messages[currentCommandSteps],
                             parseMode: ParseMode.Html,
                             disableNotification: true,
                             cancellationToken: cancellationToken);
@@ -276,14 +317,15 @@ namespace TicketFinder_Bot
                             }
                             currentCommand = "";
                             currentCommandSteps = 0;
+                            _ticketService.RequestSearch = new string[4];
                         }
                     }
                     else
                     {
                         await botClient.SendTextMessageAsync(
-                        chatId: chatId,
-                        text: "Помилка:\n" + commandResult.data[1],
-                        cancellationToken: cancellationToken);
+                            chatId: chatId,
+                            text: "Помилка:\n" + commandResult.data[1],
+                            cancellationToken: cancellationToken);
                     }
                     break;
                 case "/notification-create":
@@ -324,16 +366,17 @@ namespace TicketFinder_Bot
 
                             currentCommand = "";
                             currentCommandSteps = 0;
+                            _notificationService.RequestNotificationDTO = new();
                         }
                         else
                         {
                             await botClient.SendTextMessageAsync(
-                            chatId: chatId,
-                            text: SD.notificationCreate_command_messages[++currentCommandSteps],
-                            parseMode: ParseMode.Html,
-                            replyMarkup: ReplyKeyboards.notificationCreateReplyMarkups[currentCommandSteps],
-                            disableNotification: true,
-                            cancellationToken: cancellationToken);
+                                chatId: chatId,
+                                text: SD.notification_command_messages[++currentCommandSteps],
+                                parseMode: ParseMode.Html,
+                                replyMarkup: ReplyKeyboards.notificationReplyMarkups[currentCommandSteps],
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
                         }
                     }
                     else
@@ -345,7 +388,66 @@ namespace TicketFinder_Bot
                     }
                     break;
                 case "/notification-update":
+                    if (!messageText.Trim().Equals("-"))
+                    {
+                        commandResult = _botCommandService.NotificationCreateCommand(messageText, currentCommandSteps);
+                        if (commandResult.isSuccessful)
+                        {
+                            switch (currentCommandSteps)
+                            {
+                                case 0:
+                                    _notificationService.RequestNotificationDTO.From = commandResult.data[0];
+                                    _notificationService.RequestNotificationDTO.To = commandResult.data[1];
+                                    break;
+                                case 1:
+                                    _notificationService.RequestNotificationDTO.TicketTime = commandResult.data[0];
+                                    break;
+                                case 2:
+                                    _notificationService.RequestNotificationDTO.Days = commandResult.data[0];
+                                    break;
+                                case 3:
+                                    _notificationService.RequestNotificationDTO.Time = commandResult.data[0];
+                                    break;
+                                case 4:
+                                    _notificationService.RequestNotificationDTO.DaysToTrip = int.Parse(commandResult.data[0]);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: "Помилка:\n" + commandResult.data[1],
+                                cancellationToken: cancellationToken);
+                            return;
+                        }
+                    }
 
+                    if (currentCommandSteps == SD.notificationCreate_command_steps)
+                    {
+                        response = await _notificationService.UpdateNotification();
+
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: response.Message!,
+                            parseMode: ParseMode.Html,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+
+                        currentCommand = "";
+                        currentCommandSteps = 0;
+                        _notificationService.RequestNotificationDTO = new();
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: SD.notification_command_messages[++currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            replyMarkup: ReplyKeyboards.notificationReplyMarkups[currentCommandSteps],
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                    }
                     break;
                 case "/notification-delete":
 
