@@ -45,9 +45,9 @@ namespace TicketFinder_Bot.Service
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
-        public async Task<ResponseModelDTO> DeleteNotification(Guid id)
+        public async Task<ResponseModelDTO> DeleteNotification()
         {
-            var response = await _client.DeleteAsync(SD.api_url + $"notifications?id={id}");
+            var response = await _client.DeleteAsync(SD.api_url + $"notifications?id={RequestNotificationDTO.Id}");
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення видалене" };

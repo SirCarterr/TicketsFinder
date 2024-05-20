@@ -27,6 +27,8 @@ namespace TicketFinder_Bot
         {
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
 
+            ResponseModelDTO response;
+
             // Callback processing
             if (update.Type == UpdateType.CallbackQuery)
             {
@@ -68,10 +70,10 @@ namespace TicketFinder_Bot
                             cancellationToken: cancellationToken);
                         break;
                     case "notification-update":
-                        ResponseModelDTO notificationsResponse = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
-                        if (notificationsResponse != null)
+                        response = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
+                        if (response != null)
                         {
-                            NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)notificationsResponse.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data[1]));
+                            NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data[1]));
                             if(notificationDTO != null)
                             {
                                 currentCommand = SD.notificationUpdate_command;
@@ -110,6 +112,44 @@ namespace TicketFinder_Bot
                                 cancellationToken: cancellationToken);
                         }                       
                         break;
+                    case "notification-delete":
+                        response = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
+                        if (response != null)
+                        {
+                            NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data[1]));
+                            if (notificationDTO != null)
+                            {
+                                currentCommand = SD.notificationDelete_command;
+                                _notificationService.RequestNotificationDTO.Id = notificationDTO.Id;
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: callbackQuery.Message.Chat.Id,
+                                    text: $"Ви дійсно хочете видалити це сповіщення?",
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: ReplyKeyboards.deleteReplyMarkup,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(
+                                    chatId: callbackQuery.Message.Chat.Id,
+                                    text: $"Це сповіщення вже не існує",
+                                    parseMode: ParseMode.Html,
+                                    disableNotification: true,
+                                    cancellationToken: cancellationToken);
+                            }
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: callbackQuery.Message.Chat.Id,
+                                text: $"Неможливо видалити це сповіщення",
+                                parseMode: ParseMode.Html,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -135,7 +175,6 @@ namespace TicketFinder_Bot
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
             // If no command is executed
-            ResponseModelDTO response;
             if (string.IsNullOrEmpty(currentCommand))
             {
                 switch (messageText)
@@ -450,7 +489,44 @@ namespace TicketFinder_Bot
                     }
                     break;
                 case "/notification-delete":
+                    if (messageText.Trim().ToLower().Equals("так"))
+                    {
+                        response = await _notificationService.DeleteNotification();
 
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: response.Message!,
+                            parseMode: ParseMode.Html,
+                            replyMarkup: new ReplyKeyboardRemove(),
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+
+                        currentCommand = "";
+                        _notificationService.RequestNotificationDTO = new();
+                    }
+                    else if (messageText.Trim().ToLower().Equals("ні"))
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Команда відмінена",
+                            parseMode: ParseMode.Html,
+                            replyMarkup: new ReplyKeyboardRemove(),
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+
+                        currentCommand = "";
+                        _notificationService.RequestNotificationDTO = new();
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: "Невірний формат вводу, спробуйте ще",
+                            parseMode: ParseMode.Html,
+                            replyMarkup: new ReplyKeyboardRemove(),
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                    }
                     break;
             }
             return;

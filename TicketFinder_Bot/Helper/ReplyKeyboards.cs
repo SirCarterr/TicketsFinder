@@ -32,6 +32,11 @@ namespace TicketFinder_Bot.Helper
             new KeyboardButton[] {"Вихідні"},
         });
 
+        public static readonly ReplyKeyboardMarkup deleteReplyMarkup = new(new[]
+        {
+            new KeyboardButton[] {"Так", "Ні"},
+        });
+
         public static readonly Dictionary<int, IReplyMarkup> searchReplyMarkups = new()
         {
             { 1, dateReplyMarkup },

@@ -43,6 +43,9 @@ namespace TicketFinder_Common
         public static readonly string notificationUpdate_command = "/notification-update";
         public static readonly int notificationUpdate_command_steps = 4;
 
+        // notification-delete command
+        public static readonly string notificationDelete_command = "/notification-delete";
+
         public static string ConstructTicketMessage(TicketDTO ticketDTO)
         {
             StringBuilder text = new();

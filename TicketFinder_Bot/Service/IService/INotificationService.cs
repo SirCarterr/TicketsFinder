@@ -13,7 +13,7 @@ namespace TicketFinder_Bot.Service.IService
 
         public Task<ResponseModelDTO> CreateNotification();
         public Task<ResponseModelDTO> UpdateNotification();
-        public Task<ResponseModelDTO> DeleteNotification(Guid id);
+        public Task<ResponseModelDTO> DeleteNotification();
         public Task<ResponseModelDTO> GetNotifications(long chatId);
     }
 }
