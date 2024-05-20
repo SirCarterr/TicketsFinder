@@ -19,30 +19,34 @@ namespace TicketFinder_Bot.Service
 
         public (bool isSuccessful, string[] data) SearchCommand(string message, int commandStep)
         {
-            string[] result;
-            switch (commandStep)
+            string[] result = commandStep switch
             {
-                case 0:
-                    result = _validationService.ValidateRoute(message);
-                    if (string.IsNullOrEmpty(result[0]))
-                        return (false, result);
-                    return (true, result);
+                0 => _validationService.ValidateRoute(message),
+                1 => _validationService.ValidateDate(message),
+                2 => _validationService.ValidateTime(message),
+                _ => new string[2]
+            };
 
-                case 1:
-                    result = _validationService.ValidateDate(message);
-                    if (string.IsNullOrEmpty(result[0]))
-                        return (false, result);
-                    return (true, result);
+            if (string.IsNullOrEmpty(result[0]))
+                return (false, result);
+            return (true, result);
+        }
 
-                case 2:
-                    result = _validationService.ValidateTime(message);
-                    if (string.IsNullOrEmpty(result[0]))
-                        return (false, result);
-                    return (true, result);
+        public (bool isSuccessful, string[] data) NotificationCreateCommand(string message, int commandStep)
+        {
+            string[] result = commandStep switch
+            {
+                0 => _validationService.ValidateRoute(message),
+                1 => _validationService.ValidateTime(message),
+                2 => _validationService.ValidateDays(message),
+                3 => _validationService.ValidateTime(message),
+                4 => _validationService.ValidateDaysNumber(message),
+                _ => new string[2]
+            };
 
-                default:
-                    return (false, new string[2]);
-            }
+            if (string.IsNullOrEmpty(result[0]))
+                return (false, result);
+            return (true, result);
         }
     }
 }

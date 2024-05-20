@@ -11,6 +11,7 @@ using TicketFinder_Models;
 using Telegram.Bot.Types.ReplyMarkups;
 using TicketFinder_Bot.Helper;
 using System.Net.Sockets;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TicketFinder_Bot
 {
@@ -93,9 +94,9 @@ namespace TicketFinder_Bot
             Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
             // If no command is executed
+            ResponseModelDTO response;
             if (string.IsNullOrEmpty(currentCommand))
             {
-                ResponseModelDTO response;
                 switch (messageText)
                 {
                     case "/search":
@@ -170,7 +171,13 @@ namespace TicketFinder_Bot
                         }
                         break;
                     case "/notification-create":
-                        
+                        currentCommand = SD.notificationCreate_command;
+                        await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: SD.notificationCreate_command_messages[currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
                         break;
                     case "/cancel":
                         await botClient.SendTextMessageAsync(
@@ -206,21 +213,22 @@ namespace TicketFinder_Bot
             }
 
             // Check what command is executed
+            (bool isSuccessful, string[] data) commandResult;
             switch (currentCommand)
             {
                 case "/search":
-                    var (isSuccessful, data) = _botCommandService.SearchCommand(messageText, currentCommandSteps);
-                    if (isSuccessful)
+                    commandResult = _botCommandService.SearchCommand(messageText, currentCommandSteps);
+                    if (commandResult.isSuccessful)
                     {
                         if (currentCommandSteps == 0)
                         {
-                            _ticketService.RequestSearch[currentCommandSteps] = data[0];
-                            _ticketService.RequestSearch[currentCommandSteps + 1] = data[1];
-                            await _userHistoryService.UpdateUserHistory(new() { ChatId = chatId, History = $"{data[0]}-{data[1]}" });
+                            _ticketService.RequestSearch[currentCommandSteps] = commandResult.data[0];
+                            _ticketService.RequestSearch[currentCommandSteps + 1] = commandResult.data[1];
+                            await _userHistoryService.UpdateUserHistory(new() { ChatId = chatId, History = $"{commandResult.data[0]}-{commandResult.data[1]}" });
                         }
                         else
                         {
-                            _ticketService.RequestSearch[currentCommandSteps + 1] = data[0];
+                            _ticketService.RequestSearch[currentCommandSteps + 1] = commandResult.data[0];
                         }
 
                         await botClient.SendTextMessageAsync(
@@ -274,12 +282,67 @@ namespace TicketFinder_Bot
                     {
                         await botClient.SendTextMessageAsync(
                         chatId: chatId,
-                        text: "Помилка:\n" + data[1],
+                        text: "Помилка:\n" + commandResult.data[1],
                         cancellationToken: cancellationToken);
                     }
                     break;
                 case "/notification-create":
-                    
+                    commandResult = _botCommandService.NotificationCreateCommand(messageText, currentCommandSteps);
+                    if (commandResult.isSuccessful)
+                    {
+                        switch (currentCommandSteps)
+                        {
+                            case 0:
+                                _notificationService.RequestNotificationDTO.From = commandResult.data[0];
+                                _notificationService.RequestNotificationDTO.To = commandResult.data[1];
+                                break;
+                            case 1:
+                                _notificationService.RequestNotificationDTO.TicketTime = commandResult.data[0];
+                                break;
+                            case 2:
+                                _notificationService.RequestNotificationDTO.Days = commandResult.data[0];
+                                break;
+                            case 3:
+                                _notificationService.RequestNotificationDTO.Time = commandResult.data[0];
+                                break;
+                            case 4:
+                                _notificationService.RequestNotificationDTO.DaysToTrip = int.Parse(commandResult.data[0]);
+                                break;
+                        }
+
+                        if (currentCommandSteps == SD.notificationCreate_command_steps)
+                        {
+                            _notificationService.RequestNotificationDTO.ChatId = chatId;
+                            response = await _notificationService.CreateNotification();
+
+                            await botClient.SendTextMessageAsync(
+                                chatId: chatId,
+                                text: response.Message!,
+                                parseMode: ParseMode.Html,
+                                disableNotification: true,
+                                cancellationToken: cancellationToken);
+
+                            currentCommand = "";
+                            currentCommandSteps = 0;
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                            chatId: chatId,
+                            text: SD.notificationCreate_command_messages[++currentCommandSteps],
+                            parseMode: ParseMode.Html,
+                            replyMarkup: ReplyKeyboards.notificationCreateReplyMarkups[currentCommandSteps],
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                        }
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(
+                        chatId: chatId,
+                        text: "Помилка:\n" + commandResult.data[1],
+                        cancellationToken: cancellationToken);
+                    }
                     break;
                 case "/notification-update":
 

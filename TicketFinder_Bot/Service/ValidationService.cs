@@ -43,6 +43,50 @@ namespace TicketFinder_Bot.Service
             return date;
         }
 
+        public string[] ValidateDays(string input)
+        {
+            string[] days = new string[2];
+            Match match1 = Regex.Match(input.ToLower(), @"(парні|непарні|будні|вихідні)");
+            if (match1.Success)
+            {
+                days[0] = match1.Value;
+                return days;
+            }
+
+            Match match2 = Regex.Match(input.ToLower(), @"(понеділок|вівторок|середа|четвер|п'ятниця)(,\s(понеділок|вівторок|середа|четвер|п'ятниця))*");
+            if (match2.Success)
+            {
+                days[0] = match2.Value;
+            }
+            else
+            {
+                days[1] = "Невірний формат вводу, спробуйте ще";
+            }
+            return days;
+        }
+
+        public string[] ValidateDaysNumber(string input)
+        {
+            string[] daysNumber = new string[2];
+            bool isParsed = int.TryParse(input, out int temp);
+            if (isParsed)
+            {
+                if (temp > 90)
+                {
+                    daysNumber[1] = "Ліміт числа днів наперед не повинен перевищувати 90 днів";
+                }
+                else
+                {
+                    daysNumber[0] = input;
+                }
+            }
+            else
+            {
+                daysNumber[1] = "Невірний формат вводу, спробуйте ще";
+            }
+            return daysNumber;
+        }
+
         public string[] ValidateRoute(string input)
         {
             string[] route = new string[2];

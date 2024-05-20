@@ -11,5 +11,7 @@ namespace TicketFinder_Bot.Service.IService
         public string[] ValidateRoute(string input);
         public string[] ValidateDate(string input);
         public string[] ValidateTime(string input);
+        public string[] ValidateDays(string input);
+        public string[] ValidateDaysNumber(string input);
     }
 }

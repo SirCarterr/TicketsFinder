@@ -13,15 +13,18 @@ namespace TicketFinder_Bot.Service
     public class NotificationService : INotificationService
     {
         private readonly HttpClient _client;
+        public NotificationDTO RequestNotificationDTO { get; set; }
 
         public NotificationService()
         {
             _client = new HttpClient();
+            RequestNotificationDTO = new NotificationDTO();
         }
 
-        public async Task<ResponseModelDTO> CreateNotification(NotificationDTO notificationDTO)
+
+        public async Task<ResponseModelDTO> CreateNotification()
         {
-            var content = JsonConvert.SerializeObject(notificationDTO);
+            var content = JsonConvert.SerializeObject(RequestNotificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync(SD.api_url + "notifications", bodyContent);
@@ -74,9 +77,9 @@ namespace TicketFinder_Bot.Service
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
-        public async Task<ResponseModelDTO> UpdateNotification(NotificationDTO notificationDTO)
+        public async Task<ResponseModelDTO> UpdateNotification()
         {
-            var content = JsonConvert.SerializeObject(notificationDTO);
+            var content = JsonConvert.SerializeObject(RequestNotificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response = await _client.PutAsync(SD.api_url + "notifications", bodyContent);

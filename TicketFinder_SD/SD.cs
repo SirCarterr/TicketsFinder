@@ -14,7 +14,7 @@ namespace TicketFinder_Common
 
         public static readonly Dictionary<int, string> search_command_messages = new()
         {
-            { 0, "Введдіть місто <b>відбуття</b> та <b>прибуття</b>\n(Наприкад: <i>Київ - Львів</i>)" },
+            { 0, "Введдіть міста <b>відбуття</b> та <b>прибуття</b>\n(Наприкад: <i>Київ - Львів</i>)" },
             { 1, "Введдіть <b>дату</b> відправлення\n(Наприкад: <i>01.01.2024</i>)" },
             { 2, "Введдіть <b>час</b> відправлення від:\n(Наприклад: <i>18:00</i>)" },
             { 3, "Шукаю квитки..." }
@@ -25,6 +25,19 @@ namespace TicketFinder_Common
         // notifications command
         public static readonly string notifications_empty = "У вас немає створених сповіщень";
         public static readonly string notifications_any = "Ваші сповішення:";
+
+        // notification-create command
+        public static readonly string notificationCreate_command = "/notification-create";
+        public static readonly int notificationCreate_command_steps = 4;
+
+        public static readonly Dictionary<int, string> notificationCreate_command_messages = new()
+        {
+            { 0, "Введдіть міста <b>відбуття</b> та <b>прибуття</b>\n(Наприкад: <i>Київ - Львів</i>)" },
+            { 1, "Введдіть <b>час</b> відправлення від:\n(Наприклад: <i>18:00</i>)" },
+            { 2, "Введіть <b>день (дні)</b> сповіщення:\n(Щоб ввести декілька днів, вводьте їх через кому)" },
+            { 3, "Введіть <b>час</b> сповіщення в годинах:\n(Наприклад: <i>18:00</i>)" },
+            { 4, "Введіть наскільки днів вперед виконувати пошук квитків:" }
+        };
 
         public static string ConstructTicketMessage(TicketDTO ticketDTO)
         {
@@ -44,9 +57,9 @@ namespace TicketFinder_Common
             StringBuilder text = new();
 
             text.Append($"Маршрут: <b>{notificationDTO.From}</b> -> <b>{notificationDTO.To}</b>\n");
-            text.Append($"Дні сповіщення: <b>{notificationDTO.Days}</b>");
-            text.Append($"Час сповіщення: <b>{notificationDTO.Time}</b>");
-            text.Append($"Пошук на дні(в) вперед: <b>{notificationDTO.DaysToTrip}</b>");
+            text.Append($"Дні сповіщення: <b>{notificationDTO.Days}</b>\n");
+            text.Append($"Час сповіщення: <b>{notificationDTO.Time}</b>\n");
+            text.Append($"Пошук на дні(в) вперед: <b>{notificationDTO.DaysToTrip}</b>\n");
             text.Append($"Час відправлення від: <b>{notificationDTO.TicketTime}</b>");
 
             return text.ToString();
