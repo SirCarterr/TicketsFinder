@@ -39,6 +39,7 @@ namespace TicketFinder_Bot.Service
                 chatId: callbackQuery.Message.Chat.Id,
                 text: $"Виконую пошук: <b>{route[0]} -> {route[1]}</b>",
                 parseMode: ParseMode.Html,
+                replyToMessageId: callbackQuery.Message.MessageId,
                 disableNotification: true,
                 cancellationToken: cancellationToken);
             await botClient.SendTextMessageAsync(

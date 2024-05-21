@@ -79,6 +79,8 @@ namespace TicketFinder_Bot
 
         private async Task HandleMessageAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Received message \"{message.Text}\" in chat {message.Chat.Id}");
+
             // If no command is executed
             if (string.IsNullOrEmpty(currentCommand))
             {
@@ -171,6 +173,8 @@ namespace TicketFinder_Bot
             }
 
             string callBackCommand = callbackQuery.Data!.Split(" ")[0];
+            _logger.LogInformation($"Received callbackQuery \"{callBackCommand}\" in chat {callbackQuery.Message!.Chat.Id}");
+
             switch (callBackCommand)
             {
                 case "search":

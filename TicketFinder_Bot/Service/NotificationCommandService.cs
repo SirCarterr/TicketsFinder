@@ -109,6 +109,7 @@ namespace TicketFinder_Bot.Service
                         text: $"Ви дійсно хочете видалити це сповіщення?",
                         parseMode: ParseMode.Html,
                         replyMarkup: ReplyKeyboards.deleteReplyMarkup,
+                        replyToMessageId: callbackQuery.Message.MessageId,
                         disableNotification: true,
                         cancellationToken: cancellationToken);
                     return 1;
@@ -117,6 +118,7 @@ namespace TicketFinder_Bot.Service
                     chatId: callbackQuery.Message.Chat.Id,
                     text: $"Це сповіщення вже не існує",
                     parseMode: ParseMode.Html,
+                    replyToMessageId: callbackQuery.Message.MessageId,
                     disableNotification: true,
                     cancellationToken: cancellationToken);
                 return 1;
@@ -125,6 +127,7 @@ namespace TicketFinder_Bot.Service
                 chatId: callbackQuery.Message.Chat.Id,
                 text: $"Неможливо видалити це сповіщення",
                 parseMode: ParseMode.Html,
+                replyToMessageId: callbackQuery.Message.MessageId,
                 disableNotification: true,
                 cancellationToken: cancellationToken);
             return 0;
@@ -238,6 +241,7 @@ namespace TicketFinder_Bot.Service
                     chatId: callbackQuery.Message.Chat.Id,
                     text: $"Це сповіщення вже не існує",
                     parseMode: ParseMode.Html,
+                    replyToMessageId: callbackQuery.Message.MessageId,
                     disableNotification: true,
                     cancellationToken: cancellationToken);
                 return 0;
@@ -246,6 +250,7 @@ namespace TicketFinder_Bot.Service
                 chatId: callbackQuery.Message.Chat.Id,
                 text: $"Неможливо оновити це сповіщення",
                 parseMode: ParseMode.Html,
+                replyToMessageId: callbackQuery.Message.MessageId,
                 disableNotification: true,
                 cancellationToken: cancellationToken);
             return 0;
