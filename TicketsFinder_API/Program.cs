@@ -1,6 +1,10 @@
 
+using AspNetCore.Authentication.ApiKey;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.Threading.RateLimiting;
+using TicketsFinder_API.Helper;
 using TicketsFinder_API.Models.Data;
 using TicketsFinder_API.Services;
 using TicketsFinder_API.Services.IServices;
@@ -57,10 +61,46 @@ namespace TicketsFinder_API
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IUserHistoryService, UserHistotyService>();
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = ApiKeyDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = ApiKeyDefaults.AuthenticationScheme;
+                options.DefaultScheme = ApiKeyDefaults.AuthenticationScheme;
+            }).AddApiKeyInHeader<ApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme, options =>
+            {
+                options.KeyName = "XApiKey";
+                options.SuppressWWWAuthenticateHeader = true;
+            });
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TicketsFinder_API", Version = "v1" });
+                c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+                {
+                    Description = "ApiKey must appear in header",
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = "XApiKey",
+                    In = ParameterLocation.Header,
+                    Scheme = "ApiKeyScheme"
+                });
+                var key = new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "ApiKey"
+                    },
+                    In = ParameterLocation.Header
+                };
+                var requirement = new OpenApiSecurityRequirement
+                {
+                    { key, new List<string>() }
+                };
+                c.AddSecurityRequirement(requirement);
+            });
 
             builder.Services.AddRouting(opt => opt.LowercaseUrls = true);
 
@@ -76,6 +116,7 @@ namespace TicketsFinder_API
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseRateLimiter();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TicketFinder_Models;
@@ -8,6 +9,7 @@ namespace TicketsFinder_API.Controllers
 {
     [Route("api/user-histories")]
     [ApiController]
+    [Authorize]
     public class UserHistoriesController : ControllerBase
     {
         private readonly IUserHistoryService _userHistoryService;
