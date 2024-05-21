@@ -24,11 +24,11 @@ namespace TicketFinder_Common
 
         // notifications command
         public static readonly string notifications_empty = "У вас немає створених сповіщень";
-        public static readonly string notifications_any = "Ваші сповішення:";
+        public static readonly string notifications_any = "Ваші сповіщення:";
 
         // notification-create command
         public static readonly string notificationCreate_command = "/notification-create";
-        public static readonly int notificationCreate_command_steps = 4;
+        public static readonly int notificationCreate_command_steps = 5;
 
         public static readonly Dictionary<int, string> notification_command_messages = new()
         {
@@ -41,7 +41,7 @@ namespace TicketFinder_Common
 
         // notification-update command
         public static readonly string notificationUpdate_command = "/notification-update";
-        public static readonly int notificationUpdate_command_steps = 4;
+        public static readonly int notificationUpdate_command_steps = 5;
 
         // notification-delete command
         public static readonly string notificationDelete_command = "/notification-delete";

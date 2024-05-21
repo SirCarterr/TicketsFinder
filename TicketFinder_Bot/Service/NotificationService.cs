@@ -15,9 +15,9 @@ namespace TicketFinder_Bot.Service
         private readonly HttpClient _client;
         public NotificationDTO RequestNotificationDTO { get; set; }
 
-        public NotificationService()
+        public NotificationService(HttpClient client)
         {
-            _client = new HttpClient();
+            _client = client;
             RequestNotificationDTO = new NotificationDTO();
         }
 

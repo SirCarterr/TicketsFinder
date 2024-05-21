@@ -14,9 +14,9 @@ namespace TicketFinder_Bot.Service
     {
         private readonly HttpClient _client;
 
-        public UserHistoryService()
+        public UserHistoryService(HttpClient client)
         {
-            _client = new HttpClient();
+            _client = client;
         }
 
         public async Task<ResponseModelDTO> GetUserHistory(long chatId)

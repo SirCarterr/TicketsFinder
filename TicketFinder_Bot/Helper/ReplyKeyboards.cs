@@ -27,7 +27,7 @@ namespace TicketFinder_Bot.Helper
         private static readonly ReplyKeyboardMarkup daysReplyMarkup = new(new[]
         {
             new KeyboardButton[] {"Парні"},
-            new KeyboardButton[] {"Непрарні"},
+            new KeyboardButton[] {"Непарні"},
             new KeyboardButton[] {"Будні"},
             new KeyboardButton[] {"Вихідні"},
         });

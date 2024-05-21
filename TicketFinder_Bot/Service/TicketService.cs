@@ -16,9 +16,9 @@ namespace TicketFinder_Bot.Service
 
         public string[] RequestSearch { get; set; } //[from, to, date, time]
 
-        public TicketService()
+        public TicketService(HttpClient client)
         {
-            _client = new();
+            _client = client;
             RequestSearch = new string[4];
         }
 
