@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using TicketFinder_Models;
 using TicketsFinder_API.Services.IServices;
 
@@ -17,7 +18,8 @@ namespace TicketsFinder_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchTickets([FromQuery] string from, [FromQuery] string to,
+        [EnableRateLimiting("Parser")]
+        public IActionResult SearchTickets([FromQuery] string from, [FromQuery] string to,
             [FromQuery] string? date, [FromQuery] string? time)
         {
             for (int i = 0; i < 3; i++)

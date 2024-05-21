@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 using TicketsFinder_API.Models.Data;
 using TicketsFinder_API.Services;
 using TicketsFinder_API.Services.IServices;
@@ -17,6 +18,36 @@ namespace TicketsFinder_API
             builder.Logging.AddConsole();
 
             // Add services to the container.
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddPolicy("Parser", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(httpContext.Request.Headers.Host.ToString(),
+                partion => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = 3,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 2,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+                }));
+
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = 429;
+
+                    if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                    {
+                        await context.HttpContext.Response.WriteAsync(
+                            $"Request limit reached. Try again in {retryAfter.TotalMinutes} minutes.", cancellationToken: token);
+                    }
+                    else
+                    {
+                        await context.HttpContext.Response.WriteAsync(
+                            "Request limit reached. Try again later", cancellationToken: token);
+                    }
+                };
+            });
+
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
@@ -46,6 +77,8 @@ namespace TicketsFinder_API
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseRateLimiter();
 
             app.MapControllers();
 
