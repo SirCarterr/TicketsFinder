@@ -9,11 +9,9 @@ namespace TicketFinder_Bot.Service.IService
 {
     public interface INotificationService
     {
-        public NotificationDTO RequestNotificationDTO { get; set; }
-
-        public Task<ResponseModelDTO> CreateNotification();
-        public Task<ResponseModelDTO> UpdateNotification();
-        public Task<ResponseModelDTO> DeleteNotification();
+        public Task<ResponseModelDTO> CreateNotification(NotificationDTO notificationDTO);
+        public Task<ResponseModelDTO> UpdateNotification(NotificationDTO notificationDTO);
+        public Task<ResponseModelDTO> DeleteNotification(NotificationDTO notificationDTO);
         public Task<ResponseModelDTO> GetNotifications(long chatId);
     }
 }

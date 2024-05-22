@@ -19,6 +19,8 @@ namespace TicketFinder_Bot.Service
         private readonly INotificationService _notificationService;
         private readonly IValidationService _validationService;
 
+        private NotificationDTO notificationDTO = new();
+
         public NotificationCommandService(INotificationService notificationService, IValidationService validationService)
         {
             _notificationService = notificationService;
@@ -45,27 +47,27 @@ namespace TicketFinder_Bot.Service
                 switch (step)
                 {
                     case 1:
-                        _notificationService.RequestNotificationDTO.From = data[0];
-                        _notificationService.RequestNotificationDTO.To = data[1];
+                        notificationDTO.From = data[0];
+                        notificationDTO.To = data[1];
                         break;
                     case 2:
-                        _notificationService.RequestNotificationDTO.TicketTime = data[0];
+                        notificationDTO.TicketTime = data[0];
                         break;
                     case 3:
-                        _notificationService.RequestNotificationDTO.Days = data[0];
+                        notificationDTO.Days = data[0];
                         break;
                     case 4:
-                        _notificationService.RequestNotificationDTO.Time = data[0];
+                        notificationDTO.Time = data[0];
                         break;
                     case 5:
-                        _notificationService.RequestNotificationDTO.DaysToTrip = int.Parse(data[0]);
+                        notificationDTO.DaysToTrip = int.Parse(data[0]);
                         break;
                 }
 
                 if (step == SD.notificationCreate_command_steps)
                 {
-                    _notificationService.RequestNotificationDTO.ChatId = message.Chat.Id;
-                    ResponseModelDTO response = await _notificationService.CreateNotification();
+                    notificationDTO.ChatId = message.Chat.Id;
+                    ResponseModelDTO response = await _notificationService.CreateNotification(notificationDTO);
 
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
@@ -74,7 +76,7 @@ namespace TicketFinder_Bot.Service
                         disableNotification: true,
                         cancellationToken: cancellationToken);
 
-                    _notificationService.RequestNotificationDTO = new();
+                    notificationDTO = new();
                     return 0;
                 }
                 await botClient.SendTextMessageAsync(
@@ -102,7 +104,7 @@ namespace TicketFinder_Bot.Service
                 NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data));
                 if (notificationDTO != null)
                 {
-                    _notificationService.RequestNotificationDTO.Id = notificationDTO.Id;
+                    notificationDTO.Id = notificationDTO.Id;
 
                     await botClient.SendTextMessageAsync(
                         chatId: callbackQuery.Message.Chat.Id,
@@ -137,7 +139,7 @@ namespace TicketFinder_Bot.Service
         {
             if (message.Text!.Trim().ToLower().Equals("так"))
             {
-                ResponseModelDTO response = await _notificationService.DeleteNotification();
+                ResponseModelDTO response = await _notificationService.DeleteNotification(notificationDTO);
 
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
@@ -147,7 +149,7 @@ namespace TicketFinder_Bot.Service
                     disableNotification: true,
                     cancellationToken: cancellationToken);
 
-                _notificationService.RequestNotificationDTO = new();
+                notificationDTO = new();
                 return 0;
             }
             if (message.Text!.Trim().ToLower().Equals("ні"))
@@ -160,7 +162,7 @@ namespace TicketFinder_Bot.Service
                     disableNotification: true,
                     cancellationToken: cancellationToken);
 
-                _notificationService.RequestNotificationDTO = new();
+                notificationDTO = new();
                 return 0;
             }
             await botClient.SendTextMessageAsync(
@@ -221,7 +223,7 @@ namespace TicketFinder_Bot.Service
                 NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data));
                 if (notificationDTO != null)
                 {
-                    _notificationService.RequestNotificationDTO = notificationDTO;
+                    this.notificationDTO = notificationDTO;
 
                     await botClient.SendTextMessageAsync(
                         chatId: callbackQuery.Message.Chat.Id,
@@ -266,20 +268,20 @@ namespace TicketFinder_Bot.Service
                     switch (step)
                     {
                         case 1:
-                            _notificationService.RequestNotificationDTO.From = data[0];
-                            _notificationService.RequestNotificationDTO.To = data[1];
+                            notificationDTO.From = data[0];
+                            notificationDTO.To = data[1];
                             break;
                         case 2:
-                            _notificationService.RequestNotificationDTO.TicketTime = data[0];
+                            notificationDTO.TicketTime = data[0];
                             break;
                         case 3:
-                            _notificationService.RequestNotificationDTO.Days = data[0];
+                            notificationDTO.Days = data[0];
                             break;
                         case 4:
-                            _notificationService.RequestNotificationDTO.Time = data[0];
+                            notificationDTO.Time = data[0];
                             break;
                         case 5:
-                            _notificationService.RequestNotificationDTO.DaysToTrip = int.Parse(data[0]);
+                            notificationDTO.DaysToTrip = int.Parse(data[0]);
                             break;
                     }
                 }
@@ -295,7 +297,7 @@ namespace TicketFinder_Bot.Service
 
             if (step == SD.notificationUpdate_command_steps)
             {
-                ResponseModelDTO response = await _notificationService.UpdateNotification();
+                ResponseModelDTO response = await _notificationService.UpdateNotification(notificationDTO);
 
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
@@ -304,7 +306,7 @@ namespace TicketFinder_Bot.Service
                     disableNotification: true,
                     cancellationToken: cancellationToken);
 
-                _notificationService.RequestNotificationDTO = new();
+                notificationDTO = new();
                 return 0;
             }
 

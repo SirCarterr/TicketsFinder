@@ -13,18 +13,15 @@ namespace TicketFinder_Bot.Service
     public class NotificationService : INotificationService
     {
         private readonly HttpClient _client;
-        public NotificationDTO RequestNotificationDTO { get; set; }
 
         public NotificationService(HttpClient client)
         {
             _client = client;
-            RequestNotificationDTO = new NotificationDTO();
         }
 
-
-        public async Task<ResponseModelDTO> CreateNotification()
+        public async Task<ResponseModelDTO> CreateNotification(NotificationDTO notificationDTO)
         {
-            var content = JsonConvert.SerializeObject(RequestNotificationDTO);
+            var content = JsonConvert.SerializeObject(notificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync("notifications", bodyContent);
@@ -45,9 +42,9 @@ namespace TicketFinder_Bot.Service
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
-        public async Task<ResponseModelDTO> DeleteNotification()
+        public async Task<ResponseModelDTO> DeleteNotification(NotificationDTO notificationDTO)
         {
-            var response = await _client.DeleteAsync($"notifications?id={RequestNotificationDTO.Id}");
+            var response = await _client.DeleteAsync($"notifications?id={notificationDTO.Id}");
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення видалене" };
@@ -77,9 +74,9 @@ namespace TicketFinder_Bot.Service
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
-        public async Task<ResponseModelDTO> UpdateNotification()
+        public async Task<ResponseModelDTO> UpdateNotification(NotificationDTO notificationDTO)
         {
-            var content = JsonConvert.SerializeObject(RequestNotificationDTO);
+            var content = JsonConvert.SerializeObject(notificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
             var response = await _client.PutAsync("notifications", bodyContent);
