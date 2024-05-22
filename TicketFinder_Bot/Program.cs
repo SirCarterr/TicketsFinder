@@ -23,16 +23,33 @@ namespace TicketFinder_Bot
             })
             .ConfigureServices((hostContext, services) =>
             {
+                var config = hostContext.Configuration;
+                var apiUrl = config.GetSection("API")["url"];
+                var apiKey = config.GetSection("API")["key"];
+
+                if (apiUrl == null || apiKey == null)
+                    throw new ArgumentNullException("API url or key is not configured in user secrets.");
+
                 services.AddHostedService<Worker>();
-                services.AddHttpClient();
+                services.AddHttpClient<ITicketService, TicketService>(options =>
+                {
+                    options.BaseAddress = new Uri(apiUrl);
+                    options.DefaultRequestHeaders.Add("XApiKey", apiKey);
+                });
+                services.AddHttpClient<INotificationService, NotificationService>(options =>
+                {
+                    options.BaseAddress = new Uri(apiUrl);
+                    options.DefaultRequestHeaders.Add("XApiKey", apiKey);
+                });
+                services.AddHttpClient<IUserHistoryService, UserHistoryService>(options =>
+                {
+                    options.BaseAddress = new Uri(apiUrl);
+                    options.DefaultRequestHeaders.Add("XApiKey", apiKey);
+                });
 
                 services.AddScoped<ISearchCommandService, SearchCommandService>();
                 services.AddScoped<INotificationCommandService, NotificationCommandService>();
                 services.AddScoped<IHistoryCommandService, HistoryCommandService>();
-
-                services.AddScoped<ITicketService, TicketService>();
-                services.AddScoped<IUserHistoryService, UserHistoryService>();
-                services.AddScoped<INotificationService, NotificationService>();
                 services.AddScoped<IValidationService, ValidationService>();
             })
             .ConfigureLogging(logging =>

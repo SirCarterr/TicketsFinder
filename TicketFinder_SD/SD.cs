@@ -5,9 +5,6 @@ namespace TicketFinder_Common
 {
     public class SD
     {
-        //API url
-        public static readonly string api_url = "https://localhost:7196/api/";
-
         // search command
         public static readonly string search_command = "/search";
         public static readonly int search_command_steps = 3;

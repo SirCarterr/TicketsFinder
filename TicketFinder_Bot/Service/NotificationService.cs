@@ -27,7 +27,7 @@ namespace TicketFinder_Bot.Service
             var content = JsonConvert.SerializeObject(RequestNotificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync(SD.api_url + "notifications", bodyContent);
+            var response = await _client.PostAsync("notifications", bodyContent);
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення створене" };
@@ -47,7 +47,7 @@ namespace TicketFinder_Bot.Service
 
         public async Task<ResponseModelDTO> DeleteNotification()
         {
-            var response = await _client.DeleteAsync(SD.api_url + $"notifications?id={RequestNotificationDTO.Id}");
+            var response = await _client.DeleteAsync($"notifications?id={RequestNotificationDTO.Id}");
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення видалене" };
@@ -67,7 +67,7 @@ namespace TicketFinder_Bot.Service
 
         public async Task<ResponseModelDTO> GetNotifications(long chatId)
         {
-            var response = await _client.GetAsync(SD.api_url + $"notifications?chatId={chatId}");
+            var response = await _client.GetAsync($"notifications?chatId={chatId}");
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
@@ -82,7 +82,7 @@ namespace TicketFinder_Bot.Service
             var content = JsonConvert.SerializeObject(RequestNotificationDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = await _client.PutAsync(SD.api_url + "notifications", bodyContent);
+            var response = await _client.PutAsync("notifications", bodyContent);
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true, Message = "Сповіщення оновлене" };

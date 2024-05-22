@@ -24,7 +24,7 @@ namespace TicketFinder_Bot.Service
 
         public async Task<List<TicketDTO>> GetTickets()
         {
-            string fullUrl = SD.api_url + $"tickets?from={RequestSearch[0]}&to={RequestSearch[1]}";
+            string fullUrl = $"tickets?from={RequestSearch[0]}&to={RequestSearch[1]}";
             fullUrl += $"&date={RequestSearch[2]}";
             fullUrl += $"&time={RequestSearch[3]}";
 

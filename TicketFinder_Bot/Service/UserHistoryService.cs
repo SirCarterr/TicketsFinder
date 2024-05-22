@@ -21,7 +21,7 @@ namespace TicketFinder_Bot.Service
 
         public async Task<ResponseModelDTO> GetUserHistory(long chatId)
         {
-            var response = await _client.GetAsync(SD.api_url + $"user-histories?chatId={chatId}");
+            var response = await _client.GetAsync($"user-histories?chatId={chatId}");
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
@@ -40,7 +40,7 @@ namespace TicketFinder_Bot.Service
             var content = JsonConvert.SerializeObject(userHistoryDTO);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
 
-            var response = await _client.PutAsync(SD.api_url + "user-histories", bodyContent);
+            var response = await _client.PutAsync("user-histories", bodyContent);
             if (response.IsSuccessStatusCode)
             {
                 return new ResponseModelDTO { IsSuccess = true };
