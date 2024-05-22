@@ -53,7 +53,8 @@ namespace TicketFinder_Bot.Service
                 return days;
             }
 
-            Match match2 = Regex.Match(input.ToLower(), @"(понеділок|вівторок|середа|четвер|п'ятниця)(,\s(понеділок|вівторок|середа|четвер|п'ятниця))*");
+            Match match2 = Regex.Match(input.ToLower(), 
+                @"(понеділок|вівторок|середа|четвер|п'ятниця|субота|неділя)(,\s(понеділок|вівторок|середа|четвер|п'ятниця|субота|неділя))*");
             if (match2.Success)
             {
                 days[0] = match2.Value;

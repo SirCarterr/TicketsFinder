@@ -19,6 +19,25 @@ namespace TicketFinder_Bot
         private readonly INotificationService _notificationService;
         private readonly ITicketService _ticketService;
 
+        private readonly Dictionary<string, DayOfWeek> daysValue = new()
+        {
+            { "понеділок", DayOfWeek.Monday },
+            { "вівторок", DayOfWeek.Tuesday },
+            { "середа", DayOfWeek.Wednesday },
+            { "четвер", DayOfWeek.Thursday },
+            { "п'ятниця", DayOfWeek.Friday },
+            { "субота", DayOfWeek.Saturday },
+            { "неділя", DayOfWeek.Sunday },
+        };
+
+        private readonly Dictionary<string, List<DayOfWeek>> shortDaysValue = new()
+        {
+            { "парні", new() { DayOfWeek.Tuesday, DayOfWeek.Thursday, DayOfWeek.Saturday } },
+            { "непарні", new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday, DayOfWeek.Sunday } },
+            { "будні", new() { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday } },
+            { "вихідні", new() { DayOfWeek.Saturday, DayOfWeek.Sunday } },
+        };
+
         public Notifier(ILogger<Notifier> logger, IConfiguration configuration, 
             ITelegramBotClient botClient, INotificationService notificationService, ITicketService ticketService)
         {
@@ -47,7 +66,7 @@ namespace TicketFinder_Bot
                     foreach (var notification in notifications)
                     {
                         var time = TimeOnly.ParseExact(notification.Time, "HH:mm", null, DateTimeStyles.None);
-                        if (time.Hour != DateTime.Now.Hour)
+                        if (!IsInCurrentDayRange(notification.Days) || time.Hour != DateTime.Now.Hour)
                             continue;
 
                         string[] search = {
@@ -89,6 +108,30 @@ namespace TicketFinder_Bot
                     }
                 }
             }
+        }
+
+        private bool IsInCurrentDayRange(string days)
+        {
+            DayOfWeek currentDay = DateTime.Now.DayOfWeek;
+
+            // Check for special days value
+            List<DayOfWeek> specifiedDays = shortDaysValue.TryGetValue(days, out List<DayOfWeek>? value) ? value : new();
+
+            if (!specifiedDays.Any())
+            {
+                // Convert the string days to DayOfWeek enum values
+                string[] daysArray = days.Split(", ");
+                foreach (string day in daysArray)
+                {
+                    if (daysValue.TryGetValue(day.ToLowerInvariant(), out DayOfWeek dayOfWeek))
+                    {
+                        specifiedDays.Add(dayOfWeek);
+                    }
+                }
+            }
+
+            // Check if the current day of the week is in the specified days
+            return specifiedDays.Contains(currentDay);
         }
     }
 }
