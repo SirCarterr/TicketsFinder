@@ -20,6 +20,8 @@ namespace TicketFinder_Bot.Service
         private readonly IUserHistoryService _userHistoryService; 
         private readonly IValidationService _validationService;
 
+        private string[] search = new string[4];
+
         public SearchCommandService(ITicketService ticketService, IUserHistoryService userHistoryService, IValidationService validationService)
         {
             _ticketService = ticketService;
@@ -31,8 +33,8 @@ namespace TicketFinder_Bot.Service
         {
             string data = callbackQuery.Data!.Split(" ")[1];
             string[] route = data.Split("-");
-            _ticketService.RequestSearch[0] = route[0];
-            _ticketService.RequestSearch[1] = route[1];
+            search[0] = route[0];
+            search[1] = route[1];
             await _userHistoryService.UpdateUserHistory(new() { ChatId = callbackQuery.Message!.Chat.Id, History = $"{route[0]}-{route[1]}" });
 
             await botClient.SendTextMessageAsync(
@@ -70,13 +72,13 @@ namespace TicketFinder_Bot.Service
             {
                 if (step == 1)
                 {
-                    _ticketService.RequestSearch[step - 1] = data[0];
-                    _ticketService.RequestSearch[step] = data[1];
+                    search[step - 1] = data[0];
+                    search[step] = data[1];
                     await _userHistoryService.UpdateUserHistory(new() { ChatId = message.Chat.Id, History = $"{data[0]}-{data[1]}" });
                 }
                 else
                 {
-                    _ticketService.RequestSearch[step] = data[0];
+                    search[step] = data[0];
                 }
 
                 await botClient.SendTextMessageAsync(
@@ -89,40 +91,51 @@ namespace TicketFinder_Bot.Service
 
                 if (step == SD.search_command_steps)
                 {
-                    List<TicketDTO> tickets = await _ticketService.GetTickets();
-                    if (!tickets.Any())
+                    ResponseModelDTO response = await _ticketService.GetTickets(search);
+                    if (response.IsSuccess)
                     {
-                        await botClient.SendTextMessageAsync(
-                            chatId: message.Chat.Id,
-                            text: "Немає квитків на вказаний маршрут за введеними даними",
-                            cancellationToken: cancellationToken);
+                        List<TicketDTO> tickets = (List<TicketDTO>)response.Data!;
+                        if(tickets.Any())
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: message.Chat.Id,
+                                text: "Знайдені квитки на вказаний маршрут:",
+                                cancellationToken: cancellationToken);
+
+                            foreach (TicketDTO ticket in tickets)
+                            {
+                                InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
+                                for (int i = 0; i < ticket.Items.Count; i++)
+                                {
+                                    inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticket.Items[i].Class}: {ticket.Items[i].Places}", ticket.Items[i].URL);
+                                }
+
+                                InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);
+
+                                await botClient.SendTextMessageAsync(
+                                    chatId: message.Chat.Id,
+                                    text: SD.ConstructTicketMessage(ticket),
+                                    parseMode: ParseMode.Html,
+                                    replyMarkup: inlineKeyboardMarkup,
+                                    cancellationToken: cancellationToken);
+                            }
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(
+                                chatId: message.Chat.Id,
+                                text: "Немає квитків на вказаний маршрут за введеними даними",
+                                cancellationToken: cancellationToken);
+                        }
                     }
                     else
                     {
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
-                            text: "Знайдені квитки на вказаний маршрут:",
+                            text: response.Message!,
                             cancellationToken: cancellationToken);
-
-                        foreach (TicketDTO ticket in tickets)
-                        {
-                            InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
-                            for (int i = 0; i < ticket.Items.Count; i++)
-                            {
-                                inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticket.Items[i].Class}: {ticket.Items[i].Places}", ticket.Items[i].URL);
-                            }
-
-                            InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);
-
-                            await botClient.SendTextMessageAsync(
-                                chatId: message.Chat.Id,
-                                text: SD.ConstructTicketMessage(ticket),
-                                parseMode: ParseMode.Html,
-                                replyMarkup: inlineKeyboardMarkup,
-                                cancellationToken: cancellationToken);
-                        }
                     }
-                    _ticketService.RequestSearch = new string[4];
+                    search = new string[4];
                     return 0;
                 }
                 return ++step;

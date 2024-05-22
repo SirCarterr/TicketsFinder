@@ -14,28 +14,31 @@ namespace TicketFinder_Bot.Service
     {
         private readonly HttpClient _client;
 
-        public string[] RequestSearch { get; set; } //[from, to, date, time]
-
         public TicketService(HttpClient client)
         {
             _client = client;
-            RequestSearch = new string[4];
         }
 
-        public async Task<List<TicketDTO>> GetTickets()
+        public async Task<ResponseModelDTO> GetTickets(string[] search)
         {
-            string fullUrl = $"tickets?from={RequestSearch[0]}&to={RequestSearch[1]}";
-            fullUrl += $"&date={RequestSearch[2]}";
-            fullUrl += $"&time={RequestSearch[3]}";
+            string fullUrl = $"tickets?from={search[0]}&to={search[1]}";
+            fullUrl += $"&date={search[2]}";
+            fullUrl += $"&time={search[3]}";
 
             var response = await _client.GetAsync(fullUrl);
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<List<TicketDTO>>(contentTemp);
-                return result!;
+                return new() { IsSuccess = true, Data = result };
             }
-            return new();
+            if ((int)response.StatusCode == 429)
+                return new() { IsSuccess = false, Message = "Сервіс перенавантажений, спробуйте ще раз через пару хвилин" };
+            if ((int)response.StatusCode == 502)
+                return new() { IsSuccess = false, Message = "Неможливо зробити пошук, спробуйте ще раз пізніше" };
+            if ((int)response.StatusCode == 504)
+                return new() { IsSuccess = false, Message = "Час запиту вийшов, спробуйте ще раз через пару хвилин" };
+            return new() { IsSuccess = false, Message = "Сталась помилка при пошуку квитків" };
         }
     }
 }
