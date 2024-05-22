@@ -4,6 +4,7 @@ using TicketFinder_Bot.Service;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Telegram.Bot;
 
 namespace TicketFinder_Bot
 {
@@ -26,11 +27,20 @@ namespace TicketFinder_Bot
                 var config = hostContext.Configuration;
                 var apiUrl = config.GetSection("API")["url"];
                 var apiKey = config.GetSection("API")["key"];
+                var botToken = config.GetSection("Telegram")["bot_token"]; // change for your token in user secrets
 
-                if (apiUrl == null || apiKey == null)
+                if (apiUrl == null)
+                    throw new ArgumentNullException("API url or key is not configured in user secrets.");
+                if (apiKey == null)
+                    throw new ArgumentNullException("API url or key is not configured in user secrets.");
+                if (botToken == null)
                     throw new ArgumentNullException("API url or key is not configured in user secrets.");
 
+                services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+
                 services.AddHostedService<Worker>();
+                services.AddHostedService<Notifier>();
+
                 services.AddHttpClient<ITicketService, TicketService>(options =>
                 {
                     options.BaseAddress = new Uri(apiUrl);

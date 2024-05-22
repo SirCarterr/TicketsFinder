@@ -22,25 +22,18 @@ namespace TicketFinder_Bot
         private readonly ILogger<Worker> _logger;
         private readonly ITelegramBotClient _botClient;
 
-        ISearchCommandService _searchCommandService;
-        IHistoryCommandService _historyCommandService;
-        INotificationCommandService _notificationCommandService;
+        private readonly ISearchCommandService _searchCommandService;
+        private readonly IHistoryCommandService _historyCommandService;
+        private readonly INotificationCommandService _notificationCommandService;
 
         private string currentCommand = "";
         private int currentCommandSteps = 0;
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration, 
+        public Worker(ILogger<Worker> logger, IConfiguration configuration, ITelegramBotClient botClient,
             ISearchCommandService searchCommandService, IHistoryCommandService historyCommandService, INotificationCommandService notificationCommandService)
         {
             _logger = logger;
-
-            var botToken = configuration.GetSection("Telegram")["bot_token"];
-            if (string.IsNullOrEmpty(botToken))
-            {
-                throw new ArgumentNullException("BotToken is not configured in user secrets.");
-            }
-            _botClient = new TelegramBotClient(botToken); // Replace with your bot token in user secrets
-
+            _botClient = botClient;
             _searchCommandService = searchCommandService;
             _historyCommandService = historyCommandService;
             _notificationCommandService = notificationCommandService;

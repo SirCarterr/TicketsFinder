@@ -41,8 +41,10 @@ namespace TicketsFinder_API.Services
             return 0;
         }
 
-        public async Task<IEnumerable<NotificationDTO>> GetNotifications(long chatId)
+        public async Task<IEnumerable<NotificationDTO>> GetNotifications(long? chatId)
         {
+            if (chatId != null)
+                return _mapper.Map<IEnumerable<Notification>, IEnumerable<NotificationDTO>>(_db.Notifications.Where(n => n.ChatId == chatId));
             return _mapper.Map<IEnumerable<Notification>, IEnumerable<NotificationDTO>>(_db.Notifications);
         }
 

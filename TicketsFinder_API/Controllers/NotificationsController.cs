@@ -29,16 +29,16 @@ namespace TicketsFinder_API.Controllers
                 int check = await _notificationService.CheckCount(notificationDTO.ChatId);
                 if (check == 1)
                 {
-                    _logger.LogInformation($"New notification created for chat {notificationDTO.ChatId}", DateTime.Now);  
+                    _logger.LogInformation($"New notification created for chat {notificationDTO.ChatId}");  
                     await _notificationService.CreateNotification(notificationDTO);
                     return StatusCode(StatusCodes.Status201Created);
                 }
-                _logger.LogInformation($"New notification not created due to reached limit for chat {notificationDTO.ChatId}", DateTime.Now);
+                _logger.LogInformation($"New notification not created due to reached limit for chat {notificationDTO.ChatId}");
                 return StatusCode(StatusCodes.Status405MethodNotAllowed);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -51,15 +51,15 @@ namespace TicketsFinder_API.Controllers
                 int result = await _notificationService.UpdateNotification(notificationDTO);
                 if (result == 1)
                 {
-                    _logger.LogInformation($"Notification {notificationDTO.Id} updated for chat {notificationDTO.ChatId}", DateTime.Now);
+                    _logger.LogInformation($"Notification {notificationDTO.Id} updated for chat {notificationDTO.ChatId}");
                     return StatusCode(StatusCodes.Status202Accepted);
                 }
-                _logger.LogInformation($"Notification {notificationDTO.Id} is not found for chat {notificationDTO.ChatId}", DateTime.Now);
+                _logger.LogInformation($"Notification {notificationDTO.Id} is not found for chat {notificationDTO.ChatId}");
                 return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -72,23 +72,26 @@ namespace TicketsFinder_API.Controllers
                 int result = await _notificationService.DeleteNotification(id);
                 if (result == 1)
                 {
-                    _logger.LogInformation($"Notification {id} deleted", DateTime.Now);
+                    _logger.LogInformation($"Notification {id} deleted");
                     return Ok();
                 }
-                _logger.LogInformation($"Notification {id} is not found", DateTime.Now);
+                _logger.LogInformation($"Notification {id} is not found");
                 return StatusCode(StatusCodes.Status404NotFound);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now.ToString());
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] long chatId)
+        public async Task<IActionResult> Get([FromQuery] long? chatId)
         {
-            _logger.LogInformation($"Notifications for chat {chatId} are retrieved", DateTime.Now);
+            if(chatId == null)
+                _logger.LogInformation("All notifications are retrieved");
+            _logger.LogInformation($"Notifications for chat {chatId} are retrieved");
+
             return Ok(await _notificationService.GetNotifications(chatId));
         }
     }

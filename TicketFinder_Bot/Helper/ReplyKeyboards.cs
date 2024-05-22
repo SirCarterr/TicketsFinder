@@ -52,6 +52,17 @@ namespace TicketFinder_Bot.Helper
             { 4, new ReplyKeyboardRemove() }
         };
 
+        public static InlineKeyboardMarkup GetTicketReplyMarkup(TicketDTO ticketDTO)
+        {
+            InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticketDTO.Items.Count];
+            for (int i = 0; i < ticketDTO.Items.Count; i++)
+            {
+                inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticketDTO.Items[i].Class}: {ticketDTO.Items[i].Places}", ticketDTO.Items[i].URL);
+            }
+
+            return new(inlineKeyboardButtons);
+        }
+
         public static InlineKeyboardMarkup GetUserHistoryMarkup(UserHistoryDTO userHistoryDTO)
         {
             string[] search = userHistoryDTO.History.Split(';');

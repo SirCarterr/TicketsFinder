@@ -104,19 +104,11 @@ namespace TicketFinder_Bot.Service
 
                             foreach (TicketDTO ticket in tickets)
                             {
-                                InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[ticket.Items.Count];
-                                for (int i = 0; i < ticket.Items.Count; i++)
-                                {
-                                    inlineKeyboardButtons[i] = InlineKeyboardButton.WithUrl($"{ticket.Items[i].Class}: {ticket.Items[i].Places}", ticket.Items[i].URL);
-                                }
-
-                                InlineKeyboardMarkup inlineKeyboardMarkup = new(inlineKeyboardButtons);
-
                                 await botClient.SendTextMessageAsync(
                                     chatId: message.Chat.Id,
                                     text: SD.ConstructTicketMessage(ticket),
                                     parseMode: ParseMode.Html,
-                                    replyMarkup: inlineKeyboardMarkup,
+                                    replyMarkup: ReplyKeyboards.GetTicketReplyMarkup(ticket),
                                     cancellationToken: cancellationToken);
                             }
                         }

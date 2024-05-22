@@ -68,5 +68,15 @@ namespace TicketFinder_Common
 
             return text.ToString();
         }
+
+        public static string ConsturctNotifyMessage(NotificationDTO notificationDTO)
+        {
+            StringBuilder text = new();
+
+            text.Append($"Сповіщення про квитки на маршрут <b>\"{notificationDTO.From} -> {notificationDTO.To}\"</b> ");
+            text.Append($"на <b>{DateTime.Now.AddDays(notificationDTO.DaysToTrip).ToString("dd.MM.yyyy")}</b> від <b>{notificationDTO.TicketTime}</b>:");
+
+            return text.ToString();
+        }
     }
 }

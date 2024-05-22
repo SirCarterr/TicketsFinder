@@ -12,6 +12,6 @@ namespace TicketFinder_Bot.Service.IService
         public Task<ResponseModelDTO> CreateNotification(NotificationDTO notificationDTO);
         public Task<ResponseModelDTO> UpdateNotification(NotificationDTO notificationDTO);
         public Task<ResponseModelDTO> DeleteNotification(NotificationDTO notificationDTO);
-        public Task<ResponseModelDTO> GetNotifications(long chatId);
+        public Task<ResponseModelDTO> GetNotifications(long? chatId);
     }
 }
