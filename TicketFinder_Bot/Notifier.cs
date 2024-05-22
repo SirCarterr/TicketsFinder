@@ -37,7 +37,7 @@ namespace TicketFinder_Bot
 
             Thread.Sleep(TimeSpan.FromMinutes(sleepTime));
 
-            using CronosPeriodicTimer timer = new("0 * * * * *", CronFormat.IncludeSeconds);
+            using CronosPeriodicTimer timer = new("0 * * * * ", CronFormat.Standard);
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
                 _logger.LogInformation($"Start notifying at {DateTime.Now.ToShortTimeString()}");
