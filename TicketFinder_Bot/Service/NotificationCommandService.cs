@@ -29,6 +29,26 @@ namespace TicketFinder_Bot.Service
 
         public async Task<int> CreateNotificationCommand(ITelegramBotClient botClient, Message message, int step, CancellationToken cancellationToken)
         {
+            ResponseModelDTO response = await _notificationService.GetNotifications(message.Chat.Id);
+            if (response.IsSuccess)
+            {
+                if (((List<NotificationDTO>)response.Data!).Count == 3)
+                {
+                    await botClient.SendTextMessageAsync(
+                        chatId: message.Chat.Id,
+                        text: "Ви досялги ліміту 3-х особистих сповіщень",
+                        cancellationToken: cancellationToken);
+                    return 0;
+                }
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: message.Chat.Id,
+                    text: "Неможливо створити сповіщення, спробуйте пізніше",
+                    cancellationToken: cancellationToken);
+            }
+
             if (step == 0)
             {
                 await botClient.SendTextMessageAsync(
@@ -66,7 +86,7 @@ namespace TicketFinder_Bot.Service
                 if (step == SD.notificationCreate_command_steps)
                 {
                     notificationDTO.ChatId = message.Chat.Id;
-                    ResponseModelDTO response = await _notificationService.CreateNotification(notificationDTO);
+                    response = await _notificationService.CreateNotification(notificationDTO);
 
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,

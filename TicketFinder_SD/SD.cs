@@ -5,6 +5,13 @@ namespace TicketFinder_Common
 {
     public class SD
     {
+        // start command
+        public static readonly string start_command = "Вітаю в боті для пошуку квитків на потяги Укразалізниці\nКомадни бота:" +
+            "/search - пошук квитків за маршрутом, датою та часом\n" +
+            "/history - перегляд історії пошуків\n" +
+            "/notificationCreate - стоврення сповіщення на вказаний маршрут\n" +
+            "/notifications - перегляд та редагування сповіщень";
+
         // search command
         public static readonly string search_command = "/search";
         public static readonly int search_command_steps = 3;
@@ -24,7 +31,7 @@ namespace TicketFinder_Common
         public static readonly string notifications_any = "Ваші сповіщення:";
 
         // notification-create command
-        public static readonly string notificationCreate_command = "/notification-create";
+        public static readonly string notificationCreate_command = "/notificationCreate";
         public static readonly int notificationCreate_command_steps = 5;
 
         public static readonly Dictionary<int, string> notification_command_messages = new()

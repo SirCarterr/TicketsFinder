@@ -35,8 +35,6 @@ namespace TicketFinder_Bot
             int sleepTime = 60 - DateTime.Now.Minute;
             _logger.LogInformation($"Waiting for {sleepTime} minute(s) till first tick");
 
-            Thread.Sleep(TimeSpan.FromMinutes(sleepTime));
-
             using CronosPeriodicTimer timer = new("0 * * * * ", CronFormat.Standard);
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
@@ -62,15 +60,14 @@ namespace TicketFinder_Bot
                         response = await _ticketService.GetTickets(search);
                         if (response.IsSuccess)
                         {
+                            await _botClient.SendTextMessageAsync(
+                                chatId: notification.ChatId,
+                                text: SD.ConsturctNotifyMessage(notification),
+                                parseMode: ParseMode.Html,
+                                cancellationToken: cancellationToken);
                             List<TicketDTO> tickets = (List<TicketDTO>)response.Data!;
                             if (tickets.Any())
                             {
-                                await _botClient.SendTextMessageAsync(
-                                    chatId: notification.ChatId,
-                                    text: SD.ConsturctNotifyMessage(notification),
-                                    parseMode: ParseMode.Html,
-                                    cancellationToken: cancellationToken);;
-
                                 foreach (TicketDTO ticket in tickets)
                                 {
                                     await _botClient.SendTextMessageAsync(

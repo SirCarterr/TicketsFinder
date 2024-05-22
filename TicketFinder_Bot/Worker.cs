@@ -79,6 +79,13 @@ namespace TicketFinder_Bot
             {
                 switch (message.Text)
                 {
+                    case "/start":
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            text: SD.start_command,
+                            disableNotification: true,
+                            cancellationToken: cancellationToken);
+                        break;
                     case "/search":
                         currentCommand = SD.search_command;
                         currentCommandSteps = await _searchCommandService.SearchCommand(botClient, message, currentCommandSteps, cancellationToken);
@@ -89,7 +96,7 @@ namespace TicketFinder_Bot
                     case "/notifications":
                         await _notificationCommandService.GetNotificationsCommand(botClient, message, cancellationToken);
                         break;
-                    case "/notification-create":
+                    case "/notificationCreate":
                         currentCommand = SD.notificationCreate_command;
                         currentCommandSteps = await _notificationCommandService.CreateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                         break;
@@ -134,7 +141,7 @@ namespace TicketFinder_Bot
                     if (currentCommandSteps == 0)
                         currentCommand = "";
                     break;
-                case "/notification-create":
+                case "/notificationCreate":
                     currentCommandSteps = await _notificationCommandService.CreateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                     if (currentCommandSteps == 0)
                         currentCommand = "";
