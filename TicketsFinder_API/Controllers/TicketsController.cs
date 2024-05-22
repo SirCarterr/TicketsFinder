@@ -28,7 +28,7 @@ namespace TicketsFinder_API.Controllers
             {
                 ResponseModelDTO response = _ticketService.SearchTickets(from, to, date, time);
                 if (response.IsSuccess)
-                    return Ok(response);
+                    return Ok(response.Data);
                 if (response.Message!.Equals("site error"))
                     return StatusCode(StatusCodes.Status502BadGateway);
                 if (response.Message!.Equals("unexpected error"))

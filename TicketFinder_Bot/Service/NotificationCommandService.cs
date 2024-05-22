@@ -25,7 +25,6 @@ namespace TicketFinder_Bot.Service
         {
             _notificationService = notificationService;
             _validationService = validationService;
-
         }
 
         public async Task<int> CreateNotificationCommand(ITelegramBotClient botClient, Message message, int step, CancellationToken cancellationToken)
