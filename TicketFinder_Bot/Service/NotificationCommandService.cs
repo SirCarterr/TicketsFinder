@@ -29,28 +29,30 @@ namespace TicketFinder_Bot.Service
 
         public async Task<int> CreateNotificationCommand(ITelegramBotClient botClient, Message message, int step, CancellationToken cancellationToken)
         {
-            ResponseModelDTO response = await _notificationService.GetNotifications(message.Chat.Id);
-            if (response.IsSuccess)
+            ResponseModelDTO response;
+            if (step == 0)
             {
-                if (((List<NotificationDTO>)response.Data!).Count == 3)
+                response = await _notificationService.GetNotifications(message.Chat.Id);
+                if (response.IsSuccess)
+                {
+                    if (((List<NotificationDTO>)response.Data!).Count == 3)
+                    {
+                        await botClient.SendTextMessageAsync(
+                            chatId: message.Chat.Id,
+                            text: "Ви досялги ліміту 3-х особистих сповіщень",
+                            cancellationToken: cancellationToken);
+                        return 0;
+                    }
+                }
+                else
                 {
                     await botClient.SendTextMessageAsync(
                         chatId: message.Chat.Id,
-                        text: "Ви досялги ліміту 3-х особистих сповіщень",
+                        text: "Неможливо створити сповіщення, спробуйте пізніше",
                         cancellationToken: cancellationToken);
                     return 0;
                 }
-            }
-            else
-            {
-                await botClient.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Неможливо створити сповіщення, спробуйте пізніше",
-                    cancellationToken: cancellationToken);
-            }
 
-            if (step == 0)
-            {
                 await botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
                     text: SD.search_command_messages[step],
@@ -118,7 +120,7 @@ namespace TicketFinder_Bot.Service
         {
             string data = callbackQuery.Data!.Split(" ")[1];
             ResponseModelDTO response = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
-            if (response != null)
+            if (response.IsSuccess)
             {
                 NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data));
                 if (notificationDTO != null)
@@ -142,7 +144,7 @@ namespace TicketFinder_Bot.Service
                     replyToMessageId: callbackQuery.Message.MessageId,
                     disableNotification: true,
                     cancellationToken: cancellationToken);
-                return 1;
+                return 0;
             }
             await botClient.SendTextMessageAsync(
                 chatId: callbackQuery.Message.Chat.Id,
@@ -237,7 +239,7 @@ namespace TicketFinder_Bot.Service
         {
             string data = callbackQuery.Data!.Split(" ")[1];
             ResponseModelDTO response = await _notificationService.GetNotifications(callbackQuery.Message!.Chat.Id);
-            if (response != null)
+            if (response.IsSuccess)
             {
                 NotificationDTO? notificationDTO = ((IEnumerable<NotificationDTO>)response.Data!).FirstOrDefault(n => n.Id == Guid.Parse(data));
                 if (notificationDTO != null)

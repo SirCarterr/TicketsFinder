@@ -146,12 +146,12 @@ namespace TicketFinder_Bot
                     if (currentCommandSteps == 0)
                         currentCommand = "";
                     break;
-                case "/notification-update":
+                case "/notificationUpdate":
                     currentCommandSteps = await _notificationCommandService.UpdateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                     if (currentCommandSteps == 0)
                         currentCommand = "";
                     break;
-                case "/notification-delete":
+                case "/notificationDelete":
                     currentCommandSteps = await _notificationCommandService.DeleteNotificationCommand(botClient, message, cancellationToken);
                     if (currentCommandSteps == 0)
                         currentCommand = "";

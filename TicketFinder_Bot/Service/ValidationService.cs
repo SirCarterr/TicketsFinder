@@ -94,6 +94,7 @@ namespace TicketFinder_Bot.Service
             if (string.IsNullOrEmpty(input))
             {
                 route[1] = "Неможливо зробити пошук. Введіть місця маршруту";
+                return route;
             }
 
             Match match = Regex.Match(input, @"\s*(?<from>\w+)\s*[-\s]\s*(?<to>\w+)\s*");
@@ -113,6 +114,7 @@ namespace TicketFinder_Bot.Service
             if (string.IsNullOrEmpty(input))
             {
                 time[0] = "00:00";
+                return time;
             }
 
             Match match = Regex.Match(input, @"\d\d:\d\d");

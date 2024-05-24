@@ -33,12 +33,6 @@ namespace TicketFinder_Bot.Service
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Ви досягли ліміту в 3 сповіщення" };
             }
-            if ((int)response.StatusCode == 502)
-            {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<string>(contentTemp);
-                return new ResponseModelDTO { IsSuccess = false, Message = result };
-            }
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
 
@@ -52,12 +46,6 @@ namespace TicketFinder_Bot.Service
             if ((int)response.StatusCode == 404)
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
-            }
-            if ((int)response.StatusCode == 502)
-            {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<string>(contentTemp);
-                return new ResponseModelDTO { IsSuccess = false, Message = result };
             }
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }
@@ -87,12 +75,6 @@ namespace TicketFinder_Bot.Service
             if ((int)response.StatusCode == 404)
             {
                 return new ResponseModelDTO { IsSuccess = false, Message = "Сповіщення не зайдене" };
-            }
-            if ((int)response.StatusCode == 502)
-            {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<string>(contentTemp);
-                return new ResponseModelDTO { IsSuccess = false, Message = result };
             }
             return new ResponseModelDTO { IsSuccess = false, Message = "Сталася помилка серверу" };
         }

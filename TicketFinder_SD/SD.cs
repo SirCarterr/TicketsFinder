@@ -44,11 +44,11 @@ namespace TicketFinder_Common
         };
 
         // notification-update command
-        public static readonly string notificationUpdate_command = "/notification-update";
+        public static readonly string notificationUpdate_command = "/notificationUpdate";
         public static readonly int notificationUpdate_command_steps = 5;
 
         // notification-delete command
-        public static readonly string notificationDelete_command = "/notification-delete";
+        public static readonly string notificationDelete_command = "/notificationDelete";
 
         public static string ConstructTicketMessage(TicketDTO ticketDTO)
         {

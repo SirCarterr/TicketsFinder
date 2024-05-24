@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Bot", "TicketF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Common", "TicketFinder_SD\TicketFinder_Common.csproj", "{BC89DF98-AEC1-4994-9080-3990E58FEB59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketsFinder_API.Tests", "TicketsFinder_API.Tests\TicketsFinder_API.Tests.csproj", "{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketsFinder_API.Tests", "TicketsFinder_API.Tests\TicketsFinder_API.Tests.csproj", "{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketsFinder_Bot.Tests", "TicketsFinder_Bot.Tests\TicketsFinder_Bot.Tests.csproj", "{5FEF0023-FCF8-4018-86FC-A2B7230E9314}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FEF0023-FCF8-4018-86FC-A2B7230E9314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FEF0023-FCF8-4018-86FC-A2B7230E9314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FEF0023-FCF8-4018-86FC-A2B7230E9314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FEF0023-FCF8-4018-86FC-A2B7230E9314}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
