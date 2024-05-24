@@ -80,6 +80,7 @@ namespace TicketFinder_Bot
                 switch (message.Text)
                 {
                     case "/start":
+                        _logger.LogInformation($"Executing command \"/start\" for chat {message.Chat.Id}");
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             text: SD.start_command,
@@ -87,16 +88,20 @@ namespace TicketFinder_Bot
                             cancellationToken: cancellationToken);
                         break;
                     case "/search":
+                        _logger.LogInformation($"Executing command \"/search\" for chat {message.Chat.Id}");
                         currentCommand = SD.search_command;
                         currentCommandSteps = await _searchCommandService.SearchCommand(botClient, message, currentCommandSteps, cancellationToken);
                         break;
                     case "/history":
+                        _logger.LogInformation($"Executing command \"/history\" for chat {message.Chat.Id}");
                         await _historyCommandService.HistoryCommand(botClient, message, cancellationToken);
                         break;
                     case "/notifications":
+                        _logger.LogInformation($"Executing command \"/notifications\" for chat {message.Chat.Id}");
                         await _notificationCommandService.GetNotificationsCommand(botClient, message, cancellationToken);
                         break;
                     case "/notificationCreate":
+                        _logger.LogInformation($"Executing command \"/notificationCreate\" for chat {message.Chat.Id}");
                         currentCommand = SD.notificationCreate_command;
                         currentCommandSteps = await _notificationCommandService.CreateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                         break;
@@ -108,6 +113,7 @@ namespace TicketFinder_Bot
                             cancellationToken: cancellationToken);
                         break;
                     default:
+                        _logger.LogInformation($"Unknown command \"{message.Text}\" for chat {message.Chat.Id}");
                         await botClient.SendTextMessageAsync(
                             chatId: message.Chat.Id,
                             text: "Такої команди не існує",
@@ -121,6 +127,8 @@ namespace TicketFinder_Bot
             // Сancel executed command
             if (message.Text!.Equals("/cancel"))
             {
+                _logger.LogInformation($"Canceling command \"{currentCommand}\" for chat {message.Chat.Id}");
+
                 currentCommand = "";
                 currentCommandSteps = 0;
 
@@ -139,30 +147,45 @@ namespace TicketFinder_Bot
                 case "/search":
                     currentCommandSteps = await _searchCommandService.SearchCommand(botClient, message, currentCommandSteps, cancellationToken);
                     if (currentCommandSteps == 0)
+                    {
+                        _logger.LogInformation("Command \"/search\" executed");
                         currentCommand = "";
+                    }
                     break;
                 case "/notificationCreate":
                     currentCommandSteps = await _notificationCommandService.CreateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                     if (currentCommandSteps == 0)
+                    {
+                        _logger.LogInformation("Command \"/notificationCreate\" executed");
                         currentCommand = "";
+                    }
                     break;
                 case "/notificationUpdate":
                     currentCommandSteps = await _notificationCommandService.UpdateNotificationCommand(botClient, message, currentCommandSteps, cancellationToken);
                     if (currentCommandSteps == 0)
+                    {
+                        _logger.LogInformation("Command \"/notificationUpdate\" executed");
                         currentCommand = "";
+                    }
                     break;
                 case "/notificationDelete":
                     currentCommandSteps = await _notificationCommandService.DeleteNotificationCommand(botClient, message, cancellationToken);
                     if (currentCommandSteps == 0)
+                    {
+                        _logger.LogInformation("Command \"/notificationDelete\" executed");
                         currentCommand = "";
+                    }
                     break;
             }
         }
 
         private async Task HandleCallbackQueryAsync(ITelegramBotClient botClient, CallbackQuery callbackQuery, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Received callback \"{callbackQuery.Data}\" in chat {callbackQuery.Message?.Chat.Id}");
+
             if (!string.IsNullOrEmpty(currentCommand))
             {
+                _logger.LogInformation($"Callback \"{callbackQuery.Data}\" not processed chat {callbackQuery.Message?.Chat.Id} due to \"{currentCommand}\" is executed");
                 await botClient.SendTextMessageAsync(
                     chatId: callbackQuery.Message!.Chat.Id,
                     text: "В даний момент виконується інша команда",
@@ -173,19 +196,20 @@ namespace TicketFinder_Bot
             }
 
             string callBackCommand = callbackQuery.Data!.Split(" ")[0];
-            _logger.LogInformation($"Received callbackQuery \"{callBackCommand}\" in chat {callbackQuery.Message!.Chat.Id}");
-
             switch (callBackCommand)
             {
                 case "search":
+                    _logger.LogInformation($"Executing command \"/search\" for chat {callbackQuery.Message?.Chat.Id} from \"{callbackQuery.Data}\" callback");
                     currentCommand = SD.search_command;
                     currentCommandSteps = await _searchCommandService.SearchCallback(botClient, callbackQuery, cancellationToken);
                     break;
-                case "notification-update":
+                case "notificationUpdate":
+                    _logger.LogInformation($"Executing command \"/notificationUpdate\" for chat {callbackQuery.Message?.Chat.Id} from \"{callbackQuery.Data}\" callback");
                     currentCommand = SD.notificationUpdate_command;
                     currentCommandSteps = await _notificationCommandService.UpdateNotificationCallback(botClient, callbackQuery, cancellationToken);
                     break;
-                case "notification-delete":
+                case "notificationDelete":
+                    _logger.LogInformation($"Executing command \"/notificationDelete\" for chat {callbackQuery.Message?.Chat.Id} from \"{callbackQuery.Data}\" callback");
                     currentCommand = SD.notificationDelete_command;
                     currentCommandSteps = await _notificationCommandService.DeleteNotificationCallback(botClient, callbackQuery, cancellationToken);
                     break;

@@ -81,8 +81,8 @@ namespace TicketFinder_Bot.Helper
         {
             return new(new[]
             {
-                new [] { InlineKeyboardButton.WithCallbackData(text: "Редагувати", callbackData: $"notification-update {notificationDTO.Id}") },
-                new [] { InlineKeyboardButton.WithCallbackData(text: "Видалити", callbackData: $"notification-delete {notificationDTO.Id}") }
+                new [] { InlineKeyboardButton.WithCallbackData(text: "Редагувати", callbackData: $"notificationUpdate {notificationDTO.Id}") },
+                new [] { InlineKeyboardButton.WithCallbackData(text: "Видалити", callbackData: $"notificationDelete {notificationDTO.Id}") }
             }); 
         }
     }
