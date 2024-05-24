@@ -1,8 +1,9 @@
 
 using AspNetCore.Authentication.ApiKey;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System.Threading.RateLimiting;
 using TicketsFinder_API.Helper;
 using TicketsFinder_API.Models.Data;
@@ -57,7 +58,19 @@ namespace TicketsFinder_API
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            builder.Services.AddScoped<ITicketsService, TicketsService>();
+            builder.Services.AddSingleton<IWebDriver, ChromeDriver>(sp =>
+            {
+                //setup chrome options
+                ChromeOptions options = new();
+                options.AddArgument($"--user-agent=Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36");
+                options.AddArgument("--window-size=1920,1080");
+                options.AddArgument("--start-maximized");
+                options.PageLoadStrategy = PageLoadStrategy.Normal;
+
+                return new ChromeDriver(options);
+            });
+            builder.Services.AddSingleton<ITicketsService, TicketsService>();
+
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IUserHistoryService, UserHistotyService>();
 
@@ -121,6 +134,16 @@ namespace TicketsFinder_API
             app.UseRateLimiter();
 
             app.MapControllers();
+
+            var lifetime = app.Lifetime;
+            var ticketsService = app.Services.GetRequiredService<ITicketsService>();
+            lifetime.ApplicationStopping.Register(() =>
+            {
+                if (ticketsService is IDisposable disposableService)
+                {
+                    disposableService.Dispose();
+                }
+            });
 
             app.Run();
         }

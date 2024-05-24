@@ -13,24 +13,22 @@ namespace TicketsFinder_API.Services
     public class TicketsService : ITicketsService
     {
         private readonly string url = "https://booking.uz.gov.ua/";
+
         private readonly ILogger _logger;
+        private readonly IWebDriver _driver;
 
-        private readonly Random random;
-        private readonly string[] ua = 
-        {
-            "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9"
-        };
-        
-        private IWebDriver? driver;
-
-        public TicketsService(ILogger<TicketsService> logger)
+        public TicketsService(ILogger<TicketsService> logger, IWebDriver driver)
         {
             _logger = logger;
-            random = new Random();
+            _driver = driver;
+            _driver.Navigate().GoToUrl("https://www.google.com/");
+        }
+
+        public void Dispose()
+        {
+            _logger.LogInformation("Driver quit");
+            _driver.Quit();
+            _driver.Dispose();
         }
 
         public ResponseModelDTO SearchTickets(string from, string to, string? date, string? time)
@@ -38,17 +36,11 @@ namespace TicketsFinder_API.Services
             bool isCaptcha = false;
             try
             {
-                //setup chrome options
-                ChromeOptions options = new();
-                options.AddArgument($"--user-agent={ua[random.Next(ua.Length)]}");
-                options.AddArgument("--window-size=1920,1080");
-                options.AddArgument("--start-maximized");
-                options.PageLoadStrategy = PageLoadStrategy.Normal;
-
                 //open site
-                driver = new ChromeDriver(options);
-                driver.Navigate().GoToUrl(url);
-                WebDriverWait wait = new(driver, TimeSpan.FromSeconds(5));
+                ((IJavaScriptExecutor)_driver).ExecuteScript("window.open();");
+                _driver.SwitchTo().Window(_driver.WindowHandles.Last());
+                _driver.Navigate().GoToUrl(url);
+                WebDriverWait wait = new(_driver, TimeSpan.FromSeconds(5));
 
                 //set "from" input value
                 wait.Until(ExpectedConditions.ElementExists(By.Name("from-title"))).SendKeys(from);
@@ -67,7 +59,7 @@ namespace TicketsFinder_API.Services
                     {
                         string dateParsedString = DateOnly.FromDateTime(dateParsed).ToString("yyyy-MM-dd");
                         var datePicker = wait.Until(ExpectedConditions.ElementExists(By.XPath("//form//input[@name='date']")));
-                        driver.ExecuteJavaScript($"arguments[0].value = '{dateParsedString}'", datePicker);
+                        _driver.ExecuteJavaScript($"arguments[0].value = '{dateParsedString}'", datePicker);
                     }
                 }
 
@@ -108,7 +100,8 @@ namespace TicketsFinder_API.Services
             }
             finally
             {
-                driver?.Quit();
+                _driver.Close();
+                _driver.SwitchTo().Window(_driver.WindowHandles.First());
             }
         }
 
@@ -151,7 +144,7 @@ namespace TicketsFinder_API.Services
                     {
                         Class = seatClass,
                         Places = int.Parse(item.FindElement(By.ClassName("place-count")).Text),
-                        URL = driver!.Url.Replace("train-list", "train-wagons") + $"&train={ticket.Num.Replace(" ", "")}&wagon_type_id={seatClass}"
+                        URL = _driver!.Url.Replace("train-list", "train-wagons") + $"&train={ticket.Num.Replace(" ", "")}&wagon_type_id={seatClass}"
                     };
 
                     ticket.Items.Add(ticketItem);

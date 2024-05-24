@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Models", "Tick
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Bot", "TicketFinder_Bot\TicketFinder_Bot.csproj", "{E12E2A5F-FC3E-470D-A9C8-1E935EA53BFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFinder_Common", "TicketFinder_SD\TicketFinder_Common.csproj", "{BC89DF98-AEC1-4994-9080-3990E58FEB59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketFinder_Common", "TicketFinder_SD\TicketFinder_Common.csproj", "{BC89DF98-AEC1-4994-9080-3990E58FEB59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketsFinder_API.Tests", "TicketsFinder_API.Tests\TicketsFinder_API.Tests.csproj", "{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{BC89DF98-AEC1-4994-9080-3990E58FEB59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC89DF98-AEC1-4994-9080-3990E58FEB59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC89DF98-AEC1-4994-9080-3990E58FEB59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A45D1340-DFE4-4FA8-91C0-595F3A945DCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
