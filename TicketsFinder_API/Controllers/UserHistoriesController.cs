@@ -29,19 +29,19 @@ namespace TicketsFinder_API.Controllers
                 UserHistoryDTO userHistory_db = await _userHistoryService.GetHistory(userHistoryDTO.ChatId);
                 if (userHistory_db.Id == Guid.Empty)
                 {
-                    _logger.LogInformation($"UserHistory created for chat {userHistoryDTO.ChatId}", DateTime.Now);
+                    _logger.LogInformation($"UserHistory created for chat {userHistoryDTO.ChatId}");
                     await _userHistoryService.CreateHistory(userHistoryDTO);
                 }
                 else
                 {
-                    _logger.LogInformation($"UserHistory updated for chat {userHistoryDTO.ChatId}", DateTime.Now);
+                    _logger.LogInformation($"UserHistory updated for chat {userHistoryDTO.ChatId}");
                     await _userHistoryService.UpdateHistory(userHistoryDTO);
                 }
                 return StatusCode(StatusCodes.Status202Accepted);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unexpected error: " + ex.InnerException?.Message, DateTime.Now);
+                _logger.LogError("Unexpected error: " + ex.InnerException?.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
@@ -49,11 +49,11 @@ namespace TicketsFinder_API.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] long chatId)
         {
-            _logger.LogInformation($"UserHistory is retrieved for chat {chatId}", DateTime.Now);
+            _logger.LogInformation($"UserHistory is retrieved for chat {chatId}");
             UserHistoryDTO userHistoryDTO = await _userHistoryService.GetHistory(chatId);
             if (userHistoryDTO.Id == Guid.Empty)
             {
-                _logger.LogInformation($"UserHistory not found for chat {chatId}", DateTime.Now);
+                _logger.LogInformation($"UserHistory not found for chat {chatId}");
                 return StatusCode(StatusCodes.Status404NotFound);
             }
             return Ok(userHistoryDTO);

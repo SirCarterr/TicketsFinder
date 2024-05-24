@@ -13,10 +13,12 @@ namespace TicketsFinder_API.Controllers
     public class TicketsController : ControllerBase
     {
         private readonly ITicketsService _ticketService;
+        private readonly ILogger _logger;
 
-        public TicketsController(ITicketsService ticketsService)
+        public TicketsController(ITicketsService ticketsService, ILogger<TicketsController> logger)
         {
             _ticketService = ticketsService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -28,12 +30,22 @@ namespace TicketsFinder_API.Controllers
             {
                 ResponseModelDTO response = _ticketService.SearchTickets(from, to, date, time);
                 if (response.IsSuccess)
+                {
+                    _logger.LogInformation("Tickets search successful");
                     return Ok(response.Data);
+                }
                 if (response.Message!.Equals("site error"))
+                {
+                    _logger.LogError("Tickets search failed. Ticket site error");
                     return StatusCode(StatusCodes.Status502BadGateway);
+                }
                 if (response.Message!.Equals("unexpected error"))
+                {
+                    _logger.LogError("Tickets search failed. Driver error");
                     return StatusCode(StatusCodes.Status500InternalServerError);
+                }
             }
+            _logger.LogError("Tickets search failed. Search Timeout");
             return StatusCode(StatusCodes.Status504GatewayTimeout);
         }
     }
